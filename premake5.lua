@@ -8,11 +8,7 @@ project "macos-opengl"
     language "C++"
     cppdialect "C++17"
     targetdir "bin/%{cfg.buildcfg}"
-
-    -- Set minimum macOS deployment target
-    xcodebuildsettings {
-        ["MACOSX_DEPLOYMENT_TARGET"] = "15.1"
-    }
+    systemversion "15.1.1"
 
     -- to be compiled and linked
     files { 
@@ -30,11 +26,6 @@ project "macos-opengl"
     libdirs { "/opt/homebrew/lib" }
     links { "GLFW", "OpenGL.framework" }
 
+    -- To include /opt/homebrew/include in the system header search paths
     filter "system:macosx"
-        externalincludedirs { "/opt/homebrew/include" } -- Xcode-specific include path for GLFW
-
-    -- filter "configurations:Debug"
-    --     symbols "On"
-
-    -- filter "configurations:Release"
-    --     optimize "On"
+        externalincludedirs { "/opt/homebrew/include" }

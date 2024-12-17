@@ -8,13 +8,72 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Texture.hpp"
+#include <vector>
+#include <random>
 
-struct CubeData
+void GenerateSphere(std::vector<float> &vertices, std::vector<unsigned int> &indices, float radius, int sectorCount, int stackCount)
 {
-    glm::vec3 position;
-    glm::vec3 rotationAxis;
-    float initialRotation;
-};
+    float x, y, z, xy;
+    float nx, ny, nz, lengthInv = 1.0f / radius;
+    float s, t;
+
+    float sectorStep = 2 * M_PI / sectorCount;
+    float stackStep = M_PI / stackCount;
+    float sectorAngle, stackAngle;
+
+    for (int i = 0; i <= stackCount; ++i)
+    {
+        stackAngle = M_PI / 2 - i * stackStep;
+        xy = radius * cosf(stackAngle);
+        z = radius * sinf(stackAngle);
+
+        for (int j = 0; j <= sectorCount; ++j)
+        {
+            sectorAngle = j * sectorStep;
+
+            x = xy * cosf(sectorAngle);
+            y = xy * sinf(sectorAngle);
+
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+
+            nx = x * lengthInv;
+            ny = y * lengthInv;
+            nz = z * lengthInv;
+            vertices.push_back(nx);
+            vertices.push_back(ny);
+            vertices.push_back(nz);
+
+            s = (float)j / sectorCount;
+            t = (float)i / stackCount;
+            vertices.push_back(s);
+            vertices.push_back(t);
+        }
+    }
+
+    for (int i = 0; i < stackCount; ++i)
+    {
+        int k1 = i * (sectorCount + 1);
+        int k2 = k1 + sectorCount + 1;
+
+        for (int j = 0; j < sectorCount; ++j, ++k1, ++k2)
+        {
+            if (i != 0)
+            {
+                indices.push_back(k1);
+                indices.push_back(k2);
+                indices.push_back(k1 + 1);
+            }
+            if (i != (stackCount - 1))
+            {
+                indices.push_back(k1 + 1);
+                indices.push_back(k2);
+                indices.push_back(k2 + 1);
+            }
+        }
+    }
+}
 
 int main()
 {
@@ -88,6 +147,10 @@ int main()
         // Bottom face
         20, 21, 22, 22, 23, 20};
 
+    std::vector<float> sphereVertices;
+    std::vector<unsigned int> sphereIndices;
+    GenerateSphere(sphereVertices, sphereIndices, 0.5f, 36, 18);
+
     GLuint VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -96,14 +159,14 @@ int main()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sphereVertices.size() * sizeof(float), sphereVertices.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphereIndices.size() * sizeof(unsigned int), sphereIndices.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0); // Positions
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float))); // Colors
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float))); // Normals
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float))); // Texture Coords
     glEnableVertexAttribArray(2);
@@ -128,7 +191,20 @@ int main()
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    float rotationAngle = 0.0f; // For cube rotation
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> disAxis(-1.0f, 1.0f);
+    std::uniform_real_distribution<float> disAngle(0.0f, 360.0f);
+
+    std::vector<glm::vec3> rotationAxes;
+    std::vector<float> initialAngles;
+
+    for (unsigned int i = 0; i < 10; i++)
+    {
+        glm::vec3 randomAxis = glm::normalize(glm::vec3(disAxis(gen), disAxis(gen), disAxis(gen)));
+        rotationAxes.push_back(randomAxis);
+        initialAngles.push_back(disAngle(gen));
+    }
 
     while (!glfwWindowShouldClose(window))
     {
@@ -153,15 +229,16 @@ int main()
 
         glBindVertexArray(VAO);
 
-        // Render all cubes at predefined positions
         for (unsigned int i = 0; i < 10; i++)
         {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(static_cast<float>(angle + glfwGetTime() * 20.0f)), glm::vec3(1.0f, 0.3f, 0.5f));
+            float angle = glfwGetTime() * 20.0f + initialAngles[i];
+            model = glm::rotate(model, glm::radians(angle), rotationAxes[i]);
             shader.setMat4("model", glm::value_ptr(model));
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glBindVertexArray(VAO);
+            glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
         }
 
         glfwSwapBuffers(window);

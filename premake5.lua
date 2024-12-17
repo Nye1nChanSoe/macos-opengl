@@ -8,7 +8,6 @@ project "macos-opengl"
     language "C++"
     cppdialect "C++17"
     targetdir "bin/%{cfg.buildcfg}"
-    systemversion "15.1.1"
 
     -- to be compiled and linked
     files { 
@@ -18,7 +17,8 @@ project "macos-opengl"
 
     -- include headers
     includedirs { 
-        "/opt/homebrew/include"
+        "/opt/homebrew/include",
+        "include"
     }
 
     -- Library directories and linking
@@ -28,4 +28,7 @@ project "macos-opengl"
 
     -- To include /opt/homebrew/include in the system header search paths
     filter "system:macosx"
-        externalincludedirs { "/opt/homebrew/include" }
+        systemversion "10.15.1"
+        externalincludedirs { "/opt/homebrew/include", "include" }
+        buildoptions { "-mmacosx-version-min=10.15.1" }  -- Compiler flag
+        linkoptions { "-mmacosx-version-min=10.15.1" }   -- Linker flag

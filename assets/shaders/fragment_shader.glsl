@@ -1,7 +1,11 @@
 #version 410 core
-in vec3 vertexColor;
 out vec4 FragColor;
 
-void main() {
-    FragColor = vec4(vertexColor, 1.0);
+in vec2 TexCoords;
+
+uniform sampler2D cubeTex;
+
+void main()
+{
+    FragColor = texture(cubeTex, TexCoords);
 }

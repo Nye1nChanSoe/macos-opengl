@@ -173,38 +173,77 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f)};
+    GLuint celestialTextures[10];
+    celestialTextures[0] = LoadTexture("assets/textures/sun.jpg");
+    celestialTextures[1] = LoadTexture("assets/textures/mercury.jpg");
+    celestialTextures[2] = LoadTexture("assets/textures/venus.jpeg");
+    celestialTextures[3] = LoadTexture("assets/textures/earth.jpg");
+    celestialTextures[4] = LoadTexture("assets/textures/mars.jpg");
+    celestialTextures[5] = LoadTexture("assets/textures/jupiter.jpg");
+    celestialTextures[6] = LoadTexture("assets/textures/saturn.jpg");
+    celestialTextures[7] = LoadTexture("assets/textures/uranus.jpg");
+    celestialTextures[8] = LoadTexture("assets/textures/neptune.jpg");
+    celestialTextures[9] = LoadTexture("assets/textures/pluto.jpg");
 
-    GLuint texture = LoadTexture("assets/textures/cube.jpg");
+    // Positions: The Sun at the center, planets follow
+    glm::vec3 celestialPositions[] = {
+        glm::vec3(0.0f, 0.0f, -20.0f),    // Sun (closer to camera)
+        glm::vec3(0.0f, 0.0f, -50.0f),    // Mercury
+        glm::vec3(2.0f, 0.5f, -55.0f),    // Venus
+        glm::vec3(-2.5f, -0.5f, -65.0f),  // Earth
+        glm::vec3(3.5f, 1.0f, -75.0f),    // Mars
+        glm::vec3(-4.0f, 0.0f, -100.0f),  // Jupiter
+        glm::vec3(4.5f, -1.0f, -140.0f),  // Saturn
+        glm::vec3(-5.5f, 1.5f, -1800.0f), // Uranus
+        glm::vec3(5.5f, -0.5f, -200.0f),  // Neptune
+        glm::vec3(0.0f, 2.0f, -210.0f)    // Pluto
+    };
+
+    // Sizes: The Sun is much larger
+    float celestialSizes[] = {
+        50.0f,  // Sun
+        0.38f,  // Mercury
+        0.95f,  // Venus
+        1.0f,   // Earth
+        0.53f,  // Mars
+        11.21f, // Jupiter
+        9.45f,  // Saturn
+        4.01f,  // Uranus
+        3.88f,  // Neptune
+        0.18f   // Pluto
+    };
+
+    // Rotation speeds (degrees/second): Sun rotates slowly
+    float celestialRotationSpeeds[] = {
+        2.0f,  // Sun
+        10.0f, // Mercury
+        6.5f,  // Venus
+        15.0f, // Earth
+        13.0f, // Mars
+        30.0f, // Jupiter
+        25.0f, // Saturn
+        10.0f, // Uranus (tilted)
+        12.0f, // Neptune
+        5.0f   // Pluto
+    };
+
+    float celestialAxialTilts[] = {
+        7.25f,  // Sun
+        0.03f,  // Mercury
+        177.4f, // Venus (tilted nearly upside down)
+        23.44f, // Earth
+        25.19f, // Mars
+        62.13f, // Jupiter
+        26.73f, // Saturn
+        97.77f, // Uranus (extreme tilt)
+        28.32f, // Neptune
+        122.5f  // Pluto
+    };
+
     Shader shader("assets/shaders/vertex_shader.glsl", "assets/shaders/fragment_shader.glsl");
     Camera camera;
 
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> disAxis(-1.0f, 1.0f);
-    std::uniform_real_distribution<float> disAngle(0.0f, 360.0f);
-
-    std::vector<glm::vec3> rotationAxes;
-    std::vector<float> initialAngles;
-
-    for (unsigned int i = 0; i < 10; i++)
-    {
-        glm::vec3 randomAxis = glm::normalize(glm::vec3(disAxis(gen), disAxis(gen), disAxis(gen)));
-        rotationAxes.push_back(randomAxis);
-        initialAngles.push_back(disAngle(gen));
-    }
+    glm::mat4 projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -223,20 +262,17 @@ int main()
         shader.setMat4("view", glm::value_ptr(view));
         shader.setMat4("projection", glm::value_ptr(projection));
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        shader.setInt("cubeTex", 0);
-
-        glBindVertexArray(VAO);
-
         for (unsigned int i = 0; i < 10; i++)
         {
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = glfwGetTime() * 20.0f + initialAngles[i];
-            model = glm::rotate(model, glm::radians(angle), rotationAxes[i]);
+            model = glm::translate(model, celestialPositions[i]);
+            model = glm::rotate(model, glm::radians(celestialAxialTilts[i]), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime()) * celestialRotationSpeeds[i]), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::scale(model, glm::vec3(celestialSizes[i]));
             shader.setMat4("model", glm::value_ptr(model));
-            glBindTexture(GL_TEXTURE_2D, texture);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, celestialTextures[i]);
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
         }

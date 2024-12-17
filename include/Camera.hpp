@@ -9,8 +9,8 @@
 class Camera
 {
 public:
-    glm::vec3 Position, Front, Up;
-    float Yaw, Pitch, Speed, Sensitivity;
+    glm::vec3 Position, Front, Up, Right;
+    float Yaw, Pitch, Speed, RotationSpeed, Sensitivity;
 
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f));
     glm::mat4 GetViewMatrix() const;

@@ -75,6 +75,49 @@ void GenerateSphere(std::vector<float> &vertices, std::vector<unsigned int> &ind
     }
 }
 
+void GenerateDisk(std::vector<float> &vertices, std::vector<unsigned int> &indices, float innerRadius, float outerRadius, int sectorCount)
+{
+    float sectorStep = 2 * M_PI / sectorCount;
+    float sectorAngle;
+
+    // Generate vertices
+    for (int i = 0; i <= sectorCount; ++i)
+    {
+        sectorAngle = i * sectorStep;
+        float cosAngle = cosf(sectorAngle);
+        float sinAngle = sinf(sectorAngle);
+
+        // Outer ring vertex
+        vertices.push_back(outerRadius * cosAngle);
+        vertices.push_back(0.0f);
+        vertices.push_back(outerRadius * sinAngle);
+        vertices.push_back((cosAngle + 1) / 2);
+        vertices.push_back((sinAngle + 1) / 2);
+
+        // Inner ring vertex
+        vertices.push_back(innerRadius * cosAngle);
+        vertices.push_back(0.0f);
+        vertices.push_back(innerRadius * sinAngle);
+        vertices.push_back((cosAngle + 1) / 2);
+        vertices.push_back((sinAngle + 1) / 2);
+    }
+
+    // Generate indices
+    for (int i = 0; i < sectorCount; ++i)
+    {
+        int k1 = i * 2;
+        int k2 = k1 + 2;
+
+        indices.push_back(k1);
+        indices.push_back(k2);
+        indices.push_back(k1 + 1);
+
+        indices.push_back(k2);
+        indices.push_back(k2 + 1);
+        indices.push_back(k1 + 1);
+    }
+}
+
 int main()
 {
     if (!glfwInit())
@@ -240,6 +283,62 @@ int main()
         122.5f  // Pluto
     };
 
+    // Orbital radii (distance from Sun in relative units)
+    float orbitalRadii[] = {
+        0.0f,  // Sun (no orbit)
+        10.0f, // Mercury
+        15.0f, // Venus
+        20.0f, // Earth
+        25.0f, // Mars
+        40.0f, // Jupiter
+        55.0f, // Saturn
+        70.0f, // Uranus
+        85.0f, // Neptune
+        100.0f // Pluto
+    };
+
+    // Orbital speeds (degrees per second, faster for closer planets)
+    float orbitalSpeeds[] = {
+        0.0f,   // Sun (no orbit)
+        47.87f, // Mercury (fastest orbit)
+        35.02f, // Venus
+        29.78f, // Earth
+        24.07f, // Mars
+        13.07f, // Jupiter
+        9.69f,  // Saturn
+        6.81f,  // Uranus
+        5.43f,  // Neptune
+        4.74f   // Pluto (slowest orbit)
+    };
+
+    GLuint moonTexture = LoadTexture("assets/textures/moon.jpg");
+    GLuint saturnRingTexture = LoadTexture("assets/textures/saturn_rings.jpg");
+
+    float moonOrbitRadius = 1.5f; // Distance from Earth
+    float moonOrbitSpeed = 50.0f; // Faster orbit around Earth
+    float moonSize = 0.27f;       // Moon size relative to Earth
+
+    std::vector<float> ringVertices;
+    std::vector<unsigned int> ringIndices;
+    GenerateDisk(ringVertices, ringIndices, 1.5f, 2.5f, 100);
+
+    GLuint ringVAO, ringVBO, ringEBO;
+    glGenVertexArrays(1, &ringVAO);
+    glGenBuffers(1, &ringVBO);
+    glGenBuffers(1, &ringEBO);
+
+    glBindVertexArray(ringVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, ringVBO);
+    glBufferData(GL_ARRAY_BUFFER, ringVertices.size() * sizeof(float), ringVertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ringEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, ringIndices.size() * sizeof(unsigned int), ringIndices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
     Shader shader("assets/shaders/vertex_shader.glsl", "assets/shaders/fragment_shader.glsl");
     Camera camera;
 
@@ -275,6 +374,34 @@ int main()
             glBindTexture(GL_TEXTURE_2D, celestialTextures[i]);
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
+
+            if (i == 3)
+            {
+                glm::mat4 moonModel = model;
+                moonModel = glm::translate(
+                    moonModel,
+                    glm::vec3(
+                        moonOrbitRadius * cos(glfwGetTime() * glm::radians(moonOrbitSpeed)),
+                        0.0f,
+                        moonOrbitRadius * sin(glfwGetTime() * glm::radians(moonOrbitSpeed))));
+                moonModel = glm::scale(moonModel, glm::vec3(moonSize));
+                shader.setMat4("model", glm::value_ptr(moonModel));
+
+                glBindTexture(GL_TEXTURE_2D, moonTexture);
+                glBindVertexArray(VAO);
+                glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
+            }
+
+            if (i == 6) // Saturn
+            {
+                glm::mat4 ringModel = model;
+                ringModel = glm::scale(ringModel, glm::vec3(1.0f));
+                shader.setMat4("model", glm::value_ptr(ringModel));
+
+                glBindTexture(GL_TEXTURE_2D, saturnRingTexture);
+                glBindVertexArray(ringVAO);
+                glDrawElements(GL_TRIANGLES, ringIndices.size(), GL_UNSIGNED_INT, 0);
+            }
         }
 
         glfwSwapBuffers(window);

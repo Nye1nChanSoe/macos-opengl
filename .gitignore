@@ -1,0 +1,21 @@
+# Ignore build artifacts and binaries
+bin/
+build/
+obj/
+
+# Ignore Premake generated files
+Makefile
+*.make
+*.vcxproj
+*.vcxproj.filters
+*.sln
+*.xcodeproj
+*.xcodeproj/  # Xcode project files
+
+# macOS specific files
+.DS_Store
+
+# Editor-specific files
+.vscode/
+.idea/
+*.iml

@@ -285,34 +285,35 @@ int main()
 
     // Orbital radii (distance from Sun in relative units)
     float orbitalRadii[] = {
-        0.0f,  // Sun (no orbit)
-        10.0f, // Mercury
-        15.0f, // Venus
-        20.0f, // Earth
-        25.0f, // Mars
-        40.0f, // Jupiter
-        55.0f, // Saturn
-        70.0f, // Uranus
-        85.0f, // Neptune
-        100.0f // Pluto
+        0.0f,   // Sun (no orbit)
+        30.0f,  // Mercury
+        35.0f,  // Venus
+        45.0f,  // Earth
+        55.0f,  // Mars
+        80.0f,  // Jupiter
+        110.0f, // Saturn
+        140.0f, // Uranus
+        160.0f, // Neptune
+        180.0f  // Pluto
     };
 
     // Orbital speeds (degrees per second, faster for closer planets)
+    float speedScale = 0.1f; // Adjust this for smooth visuals
     float orbitalSpeeds[] = {
-        0.0f,   // Sun (no orbit)
-        47.87f, // Mercury (fastest orbit)
-        35.02f, // Venus
-        29.78f, // Earth
-        24.07f, // Mars
-        13.07f, // Jupiter
-        9.69f,  // Saturn
-        6.81f,  // Uranus
-        5.43f,  // Neptune
-        4.74f   // Pluto (slowest orbit)
+        0.0f,                // Sun (no orbit)
+        47.87f * speedScale, // Mercury (fastest orbit)
+        35.02f * speedScale, // Venus
+        29.78f * speedScale, // Earth
+        24.07f * speedScale, // Mars
+        13.07f * speedScale, // Jupiter
+        9.69f * speedScale,  // Saturn
+        6.81f * speedScale,  // Uranus
+        5.43f * speedScale,  // Neptune
+        4.74f * speedScale   // Pluto (slowest orbit)
     };
 
     GLuint moonTexture = LoadTexture("assets/textures/moon.jpg");
-    GLuint saturnRingTexture = LoadTexture("assets/textures/saturn_rings.jpg");
+    // GLuint saturnRingTexture = LoadTexture("assets/textures/rings.jpg");
 
     float moonOrbitRadius = 1.5f; // Distance from Earth
     float moonOrbitSpeed = 50.0f; // Faster orbit around Earth
@@ -321,23 +322,6 @@ int main()
     std::vector<float> ringVertices;
     std::vector<unsigned int> ringIndices;
     GenerateDisk(ringVertices, ringIndices, 1.5f, 2.5f, 100);
-
-    GLuint ringVAO, ringVBO, ringEBO;
-    glGenVertexArrays(1, &ringVAO);
-    glGenBuffers(1, &ringVBO);
-    glGenBuffers(1, &ringEBO);
-
-    glBindVertexArray(ringVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, ringVBO);
-    glBufferData(GL_ARRAY_BUFFER, ringVertices.size() * sizeof(float), ringVertices.data(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ringEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, ringIndices.size() * sizeof(unsigned int), ringIndices.data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
     Shader shader("assets/shaders/vertex_shader.glsl", "assets/shaders/fragment_shader.glsl");
     Camera camera;
@@ -361,10 +345,24 @@ int main()
         shader.setMat4("view", glm::value_ptr(view));
         shader.setMat4("projection", glm::value_ptr(projection));
 
+        // Celestial loop
         for (unsigned int i = 0; i < 10; i++)
         {
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, celestialPositions[i]);
+
+            if (i > 0)
+            {
+                float angle = glfwGetTime() * glm::radians(orbitalSpeeds[i]); // Orbit angle over time
+                float x = orbitalRadii[i] * cos(angle);
+                float z = orbitalRadii[i] * sin(angle);
+                model = glm::translate(model, glm::vec3(x, 0.0f, z));
+            }
+            else
+            {
+                // Keep the Sun at the origin
+                model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+            }
+
             model = glm::rotate(model, glm::radians(celestialAxialTilts[i]), glm::vec3(1.0f, 0.0f, 0.0f));
             model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime()) * celestialRotationSpeeds[i]), glm::vec3(0.0f, 1.0f, 0.0f));
             model = glm::scale(model, glm::vec3(celestialSizes[i]));
@@ -375,32 +373,21 @@ int main()
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
 
+            // Moon
             if (i == 3)
             {
                 glm::mat4 moonModel = model;
-                moonModel = glm::translate(
-                    moonModel,
-                    glm::vec3(
-                        moonOrbitRadius * cos(glfwGetTime() * glm::radians(moonOrbitSpeed)),
-                        0.0f,
-                        moonOrbitRadius * sin(glfwGetTime() * glm::radians(moonOrbitSpeed))));
-                moonModel = glm::scale(moonModel, glm::vec3(moonSize));
-                shader.setMat4("model", glm::value_ptr(moonModel));
+                float moonAngle = glfwGetTime() * glm::radians(20.0f); // Moon's orbit speed
+                float moonOrbitRadius = 2.0f;                          // Distance from Earth
+                float x = moonOrbitRadius * cos(moonAngle);
+                float z = moonOrbitRadius * sin(moonAngle);
+                moonModel = glm::translate(moonModel, glm::vec3(x, 0.0f, z));
+                moonModel = glm::scale(moonModel, glm::vec3(0.27f)); // Moon size
 
+                shader.setMat4("model", glm::value_ptr(moonModel));
                 glBindTexture(GL_TEXTURE_2D, moonTexture);
                 glBindVertexArray(VAO);
                 glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
-            }
-
-            if (i == 6) // Saturn
-            {
-                glm::mat4 ringModel = model;
-                ringModel = glm::scale(ringModel, glm::vec3(1.0f));
-                shader.setMat4("model", glm::value_ptr(ringModel));
-
-                glBindTexture(GL_TEXTURE_2D, saturnRingTexture);
-                glBindVertexArray(ringVAO);
-                glDrawElements(GL_TRIANGLES, ringIndices.size(), GL_UNSIGNED_INT, 0);
             }
         }
 

@@ -1,4 +1,10 @@
-# OpenGL4.1 Project with Premake5
+# OpenGL 4.1 Project with Premake5
+
+This project purposefully uses **OpenGL 4.1**, which is the latest supported OpenGL version on **macOS**.
+
+It ensures compatibility and performance on **Apple silicon** hardware.
+
+This project renders a solar system using **OpenGL 4.1**.
 
 - **Language**: C++
 - **Dependencies**:
@@ -31,7 +37,7 @@ premake5 xcode4
 premake5 vs2022
 ```
 
-### For $premake5 gmake2
+### Easiest way to build and run the project
 
 ```bash
 premake5 gmake2
@@ -41,7 +47,7 @@ cd ..
 ./bin/{build-config}/macos-opengl
 ```
 
-or run the shell script in one go
+Alternatively, you can run the shell script to build and execute the project in one go
 
 ```bash
 ./build_and_run

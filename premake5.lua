@@ -28,7 +28,7 @@ project "macos-opengl"
 
     -- To include /opt/homebrew/include in the system header search paths
     filter "system:macosx"
-        systemversion "10.15.1"
+        systemversion "10.15"
         externalincludedirs { "/opt/homebrew/include", "include" }
-        buildoptions { "-mmacosx-version-min=10.15.1" }  -- Compiler flag
-        linkoptions { "-mmacosx-version-min=10.15.1" }   -- Linker flag
+        buildoptions { "-mmacosx-version-min=10.15" }  -- Compiler flag
+        linkoptions { "-mmacosx-version-min=10.15" }   -- Linker flag

@@ -2,11 +2,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 Camera::Camera(glm::vec3 position)
-    : Position(glm::vec3(-80.0f, 20.0f, -50.0f)),
-      Front(glm::normalize(glm::vec3(10.0f, -0.2f, -1.0f))),
+    : Position(glm::vec3(0.0f, 0.0f, 70.0f)),
+      Front(glm::normalize(glm::vec3(0.0f, 0.0f, 0.0f))),
       Up(0.0f, 1.0f, 0.0f),
-      Yaw(-20.0f),
-      Pitch(-15.0f),
+      Yaw(-50.0f),
+      Pitch(0.0f),
       Speed(0.2f),
       RotationSpeed(0.6f),
       Sensitivity(0.05f)

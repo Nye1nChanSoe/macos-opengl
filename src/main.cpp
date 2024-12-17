@@ -377,7 +377,7 @@ int main()
             if (i == 3)
             {
                 glm::mat4 moonModel = model;
-                float moonAngle = glfwGetTime() * glm::radians(20.0f); // Moon's orbit speed
+                float moonAngle = glfwGetTime() * glm::radians(40.0f); // Moon's orbit speed
                 float moonOrbitRadius = 2.0f;                          // Distance from Earth
                 float x = moonOrbitRadius * cos(moonAngle);
                 float z = moonOrbitRadius * sin(moonAngle);

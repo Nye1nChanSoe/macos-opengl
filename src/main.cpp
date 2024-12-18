@@ -10,6 +10,7 @@
 #include "Texture.hpp"
 #include <vector>
 #include <random>
+#include <memory>
 
 void GenerateSphere(std::vector<float> &vertices, std::vector<unsigned int> &indices, float radius, int sectorCount, int stackCount)
 {
@@ -216,17 +217,17 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    GLuint celestialTextures[10];
-    celestialTextures[0] = LoadTexture("assets/textures/sun.jpg");
-    celestialTextures[1] = LoadTexture("assets/textures/mercury.jpg");
-    celestialTextures[2] = LoadTexture("assets/textures/venus.jpeg");
-    celestialTextures[3] = LoadTexture("assets/textures/earth.jpg");
-    celestialTextures[4] = LoadTexture("assets/textures/mars.jpg");
-    celestialTextures[5] = LoadTexture("assets/textures/jupiter.jpg");
-    celestialTextures[6] = LoadTexture("assets/textures/saturn.jpg");
-    celestialTextures[7] = LoadTexture("assets/textures/uranus.jpg");
-    celestialTextures[8] = LoadTexture("assets/textures/neptune.jpg");
-    celestialTextures[9] = LoadTexture("assets/textures/pluto.jpg");
+    std::unique_ptr<Texture> celestialTextures[10];
+    celestialTextures[0] = std::make_unique<Texture>("assets/textures/sun.jpg");
+    celestialTextures[1] = std::make_unique<Texture>("assets/textures/mercury.jpg");
+    celestialTextures[2] = std::make_unique<Texture>("assets/textures/venus.jpeg");
+    celestialTextures[3] = std::make_unique<Texture>("assets/textures/earth.jpg");
+    celestialTextures[4] = std::make_unique<Texture>("assets/textures/mars.jpg");
+    celestialTextures[5] = std::make_unique<Texture>("assets/textures/jupiter.jpg");
+    celestialTextures[6] = std::make_unique<Texture>("assets/textures/saturn.jpg");
+    celestialTextures[7] = std::make_unique<Texture>("assets/textures/uranus.jpg");
+    celestialTextures[8] = std::make_unique<Texture>("assets/textures/neptune.jpg");
+    celestialTextures[9] = std::make_unique<Texture>("assets/textures/pluto.jpg");
 
     // Positions: The Sun at the center, planets follow
     glm::vec3 celestialPositions[] = {
@@ -312,9 +313,7 @@ int main()
         4.74f * speedScale   // Pluto (slowest orbit)
     };
 
-    GLuint moonTexture = LoadTexture("assets/textures/moon.jpg");
-    // GLuint saturnRingTexture = LoadTexture("assets/textures/rings.jpg");
-
+    std::unique_ptr<Texture> moonTexture = std::make_unique<Texture>("assets/textures/moon.jpg");
     float moonOrbitRadius = 1.5f; // Distance from Earth
     float moonOrbitSpeed = 50.0f; // Faster orbit around Earth
     float moonSize = 0.27f;       // Moon size relative to Earth
@@ -380,8 +379,7 @@ int main()
                 shader.setInt("isSun", 0);
             }
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, celestialTextures[i]);
+            celestialTextures[i]->Bind();
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
 
@@ -397,7 +395,7 @@ int main()
 
                 shader.setMat4("model", glm::value_ptr(moonModel));
                 shader.setInt("isSun", 0);
-                glBindTexture(GL_TEXTURE_2D, moonTexture);
+                moonTexture->Bind();
                 glBindVertexArray(VAO);
                 glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
             }

@@ -129,7 +129,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    GLFWwindow *window = glfwCreateWindow(800, 600, "macos-opengl", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(900, 700, "macos-opengl", NULL, NULL);
     if (!window)
     {
         std::cerr << "Failed to create GLFW window\n";
@@ -341,25 +341,28 @@ int main()
 
         glm::mat4 view = camera.GetViewMatrix();
 
+        glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, -20.0f); // Sun's position
         shader.use();
+
+        shader.setVec3("lightPos", lightPos);
+        shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 0.8f)); // Bright white-yellow light
+        shader.setVec3("viewPos", camera.Position);
         shader.setMat4("view", glm::value_ptr(view));
         shader.setMat4("projection", glm::value_ptr(projection));
 
-        // Celestial loop
         for (unsigned int i = 0; i < 10; i++)
         {
             glm::mat4 model = glm::mat4(1.0f);
 
-            if (i > 0)
+            if (i > 0) // For planets
             {
                 float angle = glfwGetTime() * glm::radians(orbitalSpeeds[i]); // Orbit angle over time
                 float x = orbitalRadii[i] * cos(angle);
                 float z = orbitalRadii[i] * sin(angle);
                 model = glm::translate(model, glm::vec3(x, 0.0f, z));
             }
-            else
+            else // For Sun
             {
-                // Keep the Sun at the origin
                 model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
             }
 
@@ -368,13 +371,21 @@ int main()
             model = glm::scale(model, glm::vec3(celestialSizes[i]));
             shader.setMat4("model", glm::value_ptr(model));
 
+            if (i == 0) // Sun's own light emission
+            {
+                shader.setInt("isSun", 1);
+            }
+            else
+            {
+                shader.setInt("isSun", 0);
+            }
+
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, celestialTextures[i]);
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
 
-            // Moon
-            if (i == 3)
+            if (i == 3) // Moon orbiting Earth
             {
                 glm::mat4 moonModel = model;
                 float moonAngle = glfwGetTime() * glm::radians(40.0f); // Moon's orbit speed
@@ -385,6 +396,7 @@ int main()
                 moonModel = glm::scale(moonModel, glm::vec3(0.27f)); // Moon size
 
                 shader.setMat4("model", glm::value_ptr(moonModel));
+                shader.setInt("isSun", 0);
                 glBindTexture(GL_TEXTURE_2D, moonTexture);
                 glBindVertexArray(VAO);
                 glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);

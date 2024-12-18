@@ -12,13 +12,15 @@ project "macos-opengl"
     -- to be compiled and linked
     files { 
         "src/**.cpp", 
-        "assets/shaders/**.glsl"
+        "assets/shaders/**.glsl",
+        "dependencies/imgui/*.cpp",
     }
 
     -- include headers
     includedirs { 
         "/opt/homebrew/include",
-        "include"
+        "include",
+        "dependencies/imgui",
     }
 
     -- Library directories and linking
@@ -32,3 +34,11 @@ project "macos-opengl"
         externalincludedirs { "/opt/homebrew/include", "include" }
         buildoptions { "-mmacosx-version-min=10.15" }  -- Compiler flag
         linkoptions { "-mmacosx-version-min=10.15" }   -- Linker flag
+
+    -- Debug Configuration
+    filter "configurations:Debug"
+        symbols "On"
+
+    -- Release Configuration
+    filter "configurations:Release"
+        optimize "On"

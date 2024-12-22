@@ -10,6 +10,7 @@
 #include <random>
 #include <memory>
 
+#include "Window.hpp"
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Texture.hpp"
@@ -111,28 +112,11 @@ const float moonSize = 0.27f;
 
 int main()
 {
-    glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, GLFW_ANGLE_PLATFORM_TYPE_METAL);
-    if (!glfwInit())
-        return -1;
-
-    // OpenGL context hints
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
-    GLFWwindow *window = glfwCreateWindow(1000, 740, "macos-opengl", NULL, NULL);
-    if (!window)
-    {
-        std::cerr << "Failed to create GLFW window\n";
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+    Window::Properties props = {"macos-opengl", 1000, 740, true};
+    Window window(props);
 
     // Initialize ImGui
-    ImGuiHandler imguiHandler(window);
+    ImGuiHandler imguiHandler(window.GetNativeWindow());
     imguiHandler.Initialize();
 
     float vertices[] = {
@@ -246,16 +230,16 @@ int main()
     glm::vec3 lightPosition = celestialBodies[0].position; // Sun's position
     glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 0.8f);    // Bright white-yellow light
 
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window.GetNativeWindow()))
     {
         double currentTime = glfwGetTime();
         time.Update(currentTime);
 
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, true);
+        if (glfwGetKey(window.GetNativeWindow(), GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window.GetNativeWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window.GetNativeWindow(), true);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        camera.ProcessInput(window);
+        camera.ProcessInput(window.GetNativeWindow());
         view = camera.GetViewMatrix();
 
         Shader *currentShader = shaderLib.GetShader(shaderNames[selectedShader]);
@@ -314,14 +298,14 @@ int main()
         imguiHandler.RenderDebugWindow(time);
         imguiHandler.EndFrame();
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        window.OnUpdate();
     }
 
     shaderLib.RemoveShader("SolarSystemPhong");
     shaderLib.RemoveShader("SolarSystemGouraud");
     shaderLib.RemoveShader("SolarSystemFlat");
     imguiHandler.Cleanup();
-    glfwTerminate();
+    window.Shutdown();
+
     return 0;
 }

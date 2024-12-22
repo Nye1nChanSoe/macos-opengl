@@ -16,6 +16,9 @@
 #include "Texture.hpp"
 #include "ImGuiHandler.hpp"
 #include "Time.hpp"
+#include "events/KeyEvent.hpp"
+#include "events/WindowEvent.hpp"
+#include "events/MouseEvent.hpp"
 
 void GenerateSphere(std::vector<float> &vertices, std::vector<unsigned int> &indices, float radius, int sectorCount, int stackCount)
 {
@@ -112,7 +115,19 @@ const float moonSize = 0.27f;
 
 int main()
 {
-    Window::Properties props = {"macos-opengl", 1000, 740, true};
+    Window::Properties props = {"macos-opengl", 1000, 740, true, [](Event &e)
+                                {
+                                    if (e.GetType() == Event::Type::KeyPressed)
+                                    {
+                                        auto &keyEvent = static_cast<KeyPressedEvent &>(e);
+                                        std::cout << "Key Pressed: " << keyEvent.GetKeyCode() << "\n";
+                                    }
+                                    if (e.GetType() == Event::Type::MouseMoved)
+                                    {
+                                        auto &mouseEvent = static_cast<MouseMovedEvent &>(e);
+                                        std::cout << "Mouse Moved: " << mouseEvent.GetX() << "\n";
+                                    }
+                                }};
     Window window(props);
 
     // Initialize ImGui
@@ -229,6 +244,14 @@ int main()
     glm::mat4 projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
     glm::vec3 lightPosition = celestialBodies[0].position; // Sun's position
     glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 0.8f);    // Bright white-yellow light
+
+    // KeyPressedEvent KeyEvent(65, false);
+    // WindowResizedEvent resizeEvent(800, 600);
+    // MouseMovedEvent mouseMoveEvent(100.0f, 200.0f);
+
+    // std::cout << KeyEvent << std::endl;
+    // std::cout << resizeEvent << std::endl;
+    // std::cout << mouseMoveEvent << std::endl;
 
     while (!glfwWindowShouldClose(window.GetNativeWindow()))
     {

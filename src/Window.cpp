@@ -2,8 +2,12 @@
 #include "Window.hpp"
 #include <iostream>
 
+#include "events/KeyEvent.hpp"
+#include "events/WindowEvent.hpp"
+#include "events/MouseEvent.hpp"
+
 Window::Window(const Properties &props)
-    : m_Properties(props), m_Window(nullptr)
+    : m_WindowProperties(props), m_Window(nullptr)
 {
     Initialize();
 }
@@ -30,7 +34,7 @@ void Window::Initialize()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    m_Window = glfwCreateWindow(m_Properties.width, m_Properties.height, m_Properties.title.c_str(), nullptr, nullptr);
+    m_Window = glfwCreateWindow(m_WindowProperties.width, m_WindowProperties.height, m_WindowProperties.title.c_str(), nullptr, nullptr);
     if (!m_Window)
     {
         std::cerr << "Failed to create GLFW window!" << std::endl;
@@ -39,7 +43,78 @@ void Window::Initialize()
     }
 
     glfwMakeContextCurrent(m_Window);
-    SetVSync(m_Properties.vsync);
+    SetVSync(m_WindowProperties.vsync);
+
+    // Set Window User Pointer for Callbacks
+    glfwSetWindowUserPointer(m_Window, &m_WindowProperties);
+
+    // Logging OpenGL details
+    std::cout << "Vendor:   " << glGetString(GL_VENDOR) << std::endl;
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "Version:  " << glGetString(GL_VERSION) << std::endl;
+
+    // GLFW Callbacks
+    glfwSetWindowCloseCallback(m_Window, [](GLFWwindow *window)
+                               {
+        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+        WindowClosedEvent event;
+        props.eventCallback(event); });
+
+    glfwSetWindowSizeCallback(m_Window, [](GLFWwindow *window, int width, int height)
+                              {
+        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+        props.width = width;
+        props.height = height;
+
+        WindowResizedEvent event(width, height);
+        props.eventCallback(event); });
+
+    glfwSetKeyCallback(m_Window, [](GLFWwindow *window, int keycode, int scancode, int action, int mods)
+                       {
+        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+
+        switch (action)
+        {
+            case GLFW_PRESS:
+                {
+                    KeyPressedEvent event(keycode);
+                    props.eventCallback(event);
+                    break;
+                }
+            case GLFW_RELEASE:
+                {
+                    KeyReleasedEvent event(keycode);
+                    props.eventCallback(event);
+                    break;
+                }
+        } });
+
+    glfwSetCursorPosCallback(m_Window, [](GLFWwindow *window, double xpos, double ypos)
+                             {
+        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+
+        MouseMovedEvent event(static_cast<float>(xpos), static_cast<float>(ypos));
+        props.eventCallback(event); });
+
+    glfwSetMouseButtonCallback(m_Window, [](GLFWwindow *window, int button, int action, int mods)
+                               {
+        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+
+        switch (action)
+        {
+            case GLFW_PRESS:
+                {
+                    MouseButtonPressedEvent event(button);
+                    props.eventCallback(event);
+                    break;
+                }
+            case GLFW_RELEASE:
+                {
+                    MouseButtonReleasedEvent event(button);
+                    props.eventCallback(event);
+                    break;
+                }
+        } });
 }
 
 void Window::OnUpdate()
@@ -51,18 +126,28 @@ void Window::OnUpdate()
 void Window::SetVSync(bool enabled)
 {
     glfwSwapInterval(enabled ? 1 : 0);
-    m_Properties.vsync = enabled;
-}
-
-bool Window::IsVSync() const
-{
-    return m_Properties.vsync;
+    m_WindowProperties.vsync = enabled;
 }
 
 void Window::Shutdown()
 {
     if (m_Window)
         glfwTerminate();
+}
+
+void Window::DisableCursor()
+{
+    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void Window::EnableCursor()
+{
+    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+}
+
+void Window::HideCursor()
+{
+    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 }
 
 void Window::GLFWErrorCallback(int error, const char *description)

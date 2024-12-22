@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TEXTURE_HPP
+#define TEXTURE_HPP
 
 #define GL_SILENCE_DEPRECATION
 
@@ -25,3 +26,5 @@ private:
 
     void LoadFromFile(const std::string &path);
 };
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CAMERA_HPP
+#define CAMERA_HPP
 
 #define GL_SILENCE_DEPRECATION
 
@@ -17,3 +18,5 @@ public:
     void ProcessInput(GLFWwindow *window);
     void ProcessMouseMovement(float xOffset, float yOffset);
 };
+
+#endif

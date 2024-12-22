@@ -8,6 +8,8 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 
+#include "Time.hpp"
+
 class ImGuiHandler
 {
 private:
@@ -24,7 +26,7 @@ public:
 
     // Render the shader selector UI
     void RenderShaderSelector(const std::vector<std::string> &shaderNames, int &selectedShader);
-    void RenderDebugWindow(float frameTime);
+    void RenderDebugWindow(const Time &time);
 };
 
-#endif // IMGUI_HANDLER_HPP
+#endif

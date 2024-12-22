@@ -79,13 +79,13 @@ void ImGuiHandler::RenderShaderSelector(const std::vector<std::string> &shaderNa
     ImGui::End();
 }
 
-void ImGuiHandler::RenderDebugWindow(float frameTime)
+void ImGuiHandler::RenderDebugWindow(const Time &time)
 {
     ImGui::Begin("Debug Info", nullptr, ImGuiWindowFlags_NoCollapse);
 
-    // Display FPS
-    ImGui::Text("FPS: %.1f", 1.0f / frameTime);
-    ImGui::Text("Frame Time: %.3f ms", frameTime * 1000.0f);
+    // Display FPS and frame time using the Time class
+    ImGui::Text("FPS: %.1f", time.GetFPS());
+    ImGui::Text("Frame Time: %.1f ms", time.GetDeltaTime() * 1000.0f);
 
     ImGui::End();
 }

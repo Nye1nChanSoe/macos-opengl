@@ -1,3 +1,6 @@
+#ifndef SHADER_HPP
+#define SHADER_HPP
+
 #define GL_SILENCE_DEPRECATION
 
 #include <string>
@@ -78,3 +81,5 @@ public:
 
     std::vector<std::string> inline getShaderNames() const { return m_ShaderNames; }
 };
+
+#endif

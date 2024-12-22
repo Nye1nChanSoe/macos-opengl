@@ -14,6 +14,7 @@
 #include "Camera.hpp"
 #include "Texture.hpp"
 #include "ImGuiHandler.hpp"
+#include "Time.hpp"
 
 void GenerateSphere(std::vector<float> &vertices, std::vector<unsigned int> &indices, float radius, int sectorCount, int stackCount)
 {
@@ -110,6 +111,7 @@ const float moonSize = 0.27f;
 
 int main()
 {
+    glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, GLFW_ANGLE_PLATFORM_TYPE_METAL);
     if (!glfwInit())
         return -1;
 
@@ -236,6 +238,7 @@ int main()
     int selectedShader = 0; // Default shader index
 
     Camera camera;
+    Time time;
 
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view = camera.GetViewMatrix();
@@ -245,6 +248,9 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        double currentTime = glfwGetTime();
+        time.Update(currentTime);
+
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -305,7 +311,7 @@ int main()
 
         imguiHandler.BeginFrame();
         imguiHandler.RenderShaderSelector(shaderNames, selectedShader);
-        imguiHandler.RenderDebugWindow(static_cast<float>(glfwGetTime()));
+        imguiHandler.RenderDebugWindow(time);
         imguiHandler.EndFrame();
 
         glfwSwapBuffers(window);

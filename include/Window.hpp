@@ -14,9 +14,9 @@ public:
     using EventCallbackFn = std::function<void(Event &)>;
     struct Properties
     {
-        std::string title;
         int width;
         int height;
+        std::string title;
         bool vsync;
 
         EventCallbackFn eventCallback;

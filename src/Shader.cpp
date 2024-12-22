@@ -256,6 +256,7 @@ void ShaderManager::AddShader(const std::string &shaderName, const std::string &
     std::cout << "[INFO]: Shader added from path: " << fullFragmentShaderPath << "\n";
 
     m_Shaders[shaderName] = new Shader(fullVertexShaderPath.c_str(), fullFragmentShaderPath.c_str());
+    m_ShaderNames.push_back(shaderName);
 }
 
 void ShaderManager::RemoveShader(const std::string &shaderName)
@@ -265,8 +266,18 @@ void ShaderManager::RemoveShader(const std::string &shaderName)
     {
         throw std::runtime_error("Shader with name " + shaderName + " not found.");
     }
+
+    // Delete the shader and remove from the map
     delete it->second;
     m_Shaders.erase(it);
+
+    // Remove the shader name from the list
+    auto nameIt = std::find(m_ShaderNames.begin(), m_ShaderNames.end(), shaderName);
+    if (nameIt != m_ShaderNames.end())
+    {
+        m_ShaderNames.erase(nameIt);
+    }
+
     std::cout << "[INFO]: Shader Removed: " << shaderName << "\n";
 }
 

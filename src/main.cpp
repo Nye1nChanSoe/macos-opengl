@@ -4,13 +4,16 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
-#include "Shader.hpp"
-#include "Camera.hpp"
-#include "Texture.hpp"
 #include <vector>
 #include <random>
 #include <memory>
+
+#include "Shader.hpp"
+#include "Camera.hpp"
+#include "Texture.hpp"
+#include "ImGuiHandler.hpp"
 
 void GenerateSphere(std::vector<float> &vertices, std::vector<unsigned int> &indices, float radius, int sectorCount, int stackCount)
 {
@@ -116,7 +119,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    GLFWwindow *window = glfwCreateWindow(900, 700, "macos-opengl", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(1000, 740, "macos-opengl", NULL, NULL);
     if (!window)
     {
         std::cerr << "Failed to create GLFW window\n";
@@ -124,6 +127,11 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
+
+    // Initialize ImGui
+    ImGuiHandler imguiHandler(window);
+    imguiHandler.Initialize();
 
     float vertices[] = {
         // Position coords  // Color coords // Texture coords
@@ -224,6 +232,9 @@ int main()
     Shader *shaderGouraud = shaderLib.GetShader("SolarSystemGouraud");
     Shader *shaderFlat = shaderLib.GetShader("SolarSystemFlat");
 
+    auto shaderNames = shaderLib.getShaderNames();
+    int selectedShader = 0; // Default shader index
+
     Camera camera;
 
     glm::mat4 model = glm::mat4(1.0f);
@@ -241,15 +252,16 @@ int main()
         camera.ProcessInput(window);
         view = camera.GetViewMatrix();
 
-        shaderPhong->UseProgram();
+        Shader *currentShader = shaderLib.GetShader(shaderNames[selectedShader]);
+        currentShader->UseProgram();
 
-        shaderPhong->UploadUniformMat4("model", model);
-        shaderPhong->UploadUniformMat4("view", view);
-        shaderPhong->UploadUniformMat4("projection", projection);
+        currentShader->UploadUniformMat4("model", model);
+        currentShader->UploadUniformMat4("view", view);
+        currentShader->UploadUniformMat4("projection", projection);
 
-        shaderPhong->UploadUniform3f("lightPos", lightPosition);
-        shaderPhong->UploadUniform3f("viewPos", camera.Position);
-        shaderPhong->UploadUniform3f("lightColor", lightColor);
+        currentShader->UploadUniform3f("lightPos", lightPosition);
+        currentShader->UploadUniform3f("viewPos", camera.Position);
+        currentShader->UploadUniform3f("lightColor", lightColor);
 
         for (unsigned int i = 0; i < 10; i++)
         {
@@ -265,8 +277,8 @@ int main()
             model = glm::scale(model, glm::vec3(celestialBodies[i].size));
             model = glm::rotate(model, glm::radians(celestialBodies[i].axialTilt), glm::vec3(1.0f, 0.0f, 0.0f));
             model = glm::rotate(model, glm::radians(static_cast<float>(glfwGetTime()) * celestialBodies[i].rotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
-            shaderPhong->UploadUniformMat4("model", model);
-            shaderPhong->UploadUniform1i("isSun", (i == 0) ? 1 : 0);
+            currentShader->UploadUniformMat4("model", model);
+            currentShader->UploadUniform1i("isSun", (i == 0) ? 1 : 0);
 
             celestialTextures[i]->Bind();
             glBindVertexArray(VAO);
@@ -282,14 +294,19 @@ int main()
                 moonModel = glm::translate(moonModel, glm::vec3(x, 0.0f, z));
                 moonModel = glm::scale(moonModel, glm::vec3(moonSize));
 
-                shaderPhong->UploadUniformMat4("model", model);
-                shaderPhong->UploadUniform1i("isSun", (i == 0) ? 1 : 0);
+                currentShader->UploadUniformMat4("model", moonModel);
+                currentShader->UploadUniform1i("isSun", 0);
 
                 moonTexture->Bind();
                 glBindVertexArray(VAO);
                 glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
             }
         }
+
+        imguiHandler.BeginFrame();
+        imguiHandler.RenderShaderSelector(shaderNames, selectedShader);
+        imguiHandler.RenderDebugWindow(static_cast<float>(glfwGetTime()));
+        imguiHandler.EndFrame();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -298,7 +315,7 @@ int main()
     shaderLib.RemoveShader("SolarSystemPhong");
     shaderLib.RemoveShader("SolarSystemGouraud");
     shaderLib.RemoveShader("SolarSystemFlat");
-
+    imguiHandler.Cleanup();
     glfwTerminate();
     return 0;
 }

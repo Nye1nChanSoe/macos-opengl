@@ -62,6 +62,7 @@ private:
     std::unordered_map<std::string, Shader *> m_Shaders;
     std::unordered_map<std::string, GLuint> m_ShaderCache;
     std::string m_ShaderDefaultPath;
+    std::vector<std::string> m_ShaderNames;
 
 public:
     ShaderManager();
@@ -74,4 +75,6 @@ public:
     void inline setShaderDefaultPath(const std::string &defaultPath) { m_ShaderDefaultPath = defaultPath; }
 
     Shader *GetShader(const std::string &shaderName);
+
+    std::vector<std::string> inline getShaderNames() const { return m_ShaderNames; }
 };

@@ -23,6 +23,8 @@ public:
     std::vector<Layer *>::const_iterator begin() const { return m_Layers.begin(); }
     std::vector<Layer *>::const_iterator end() const { return m_Layers.end(); }
 
+    Layer *FindLayerByName(const std::string &name) const;
+
 private:
     std::vector<Layer *> m_Layers;
     unsigned int m_LayerInsertIndex = 0;

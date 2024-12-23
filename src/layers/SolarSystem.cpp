@@ -1,4 +1,5 @@
 #include "layers/SolarSystem.hpp"
+#include "Application.hpp"
 #include <iostream>
 
 SolarSystem::SolarSystem()
@@ -24,12 +25,12 @@ void SolarSystem::OnDetach()
 
 void SolarSystem::OnUpdate(float deltaTime)
 {
-    std::cout << GetName() << ": " << "updating.DeltaTime : " << deltaTime << "\n ";
+    // std::cout << GetName() << ": " << "updating.DeltaTime : " << deltaTime << "\n ";
 }
 
 void SolarSystem::OnEvent(Event &event)
 {
-    std::cout << GetName() << ": " << "received event: " << event << "\n";
+    // std::cout << GetName() << ": " << "received event: " << event << "\n";
 }
 
 void SolarSystem::OnRender()

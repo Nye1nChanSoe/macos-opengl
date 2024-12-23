@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include "layers/SolarSystem.hpp"
+#include "layers/ImGuiLayer.hpp"
 
 Application *Application::s_Instance = nullptr;
 
@@ -23,6 +24,9 @@ Application::Application()
 
     auto *layer1 = new SolarSystem();
     m_LayerStack.PushLayer(layer1);
+
+    auto *layer2 = new ImGuiLayer();
+    m_LayerStack.PushOverlay(layer2);
 }
 
 Application::~Application()
@@ -54,19 +58,23 @@ void Application::Run()
 {
     while (m_Running)
     {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         // Update all layers
         for (Layer *layer : m_LayerStack)
         {
-            layer->OnUpdate(0.016f); // Fixed delta time (60 FPS)
+            if (layer->IsVisible())
+                layer->OnUpdate(0.016f); // Fixed delta time (60 FPS)
         }
 
         // Render all layers
         for (Layer *layer : m_LayerStack)
         {
-            layer->OnRender();
+            if (layer->IsVisible())
+                layer->OnRender();
         }
 
-        // Update the window (poll events, swap buffers, etc.)
+        // swap buffers and poll events
         m_Window->OnUpdate();
     }
 }

@@ -8,7 +8,7 @@ class Layer
 {
 public:
     explicit Layer(const std::string &name = "Unnamed Layer")
-        : m_DebugName(name) {}
+        : m_DebugName(name), m_Visible(true) {}
 
     virtual ~Layer() = default;
 
@@ -23,9 +23,12 @@ public:
     virtual void OnEvent(Event &event) {}
 
     const inline std::string &GetName() const { return m_DebugName; }
+    inline void SetVisibility(bool visible) { m_Visible = visible; }
+    inline bool IsVisible() const { return m_Visible; }
 
 protected:
     std::string m_DebugName;
+    bool m_Visible; // visibility flag (for ImGUI layer management)
 };
 
 #endif

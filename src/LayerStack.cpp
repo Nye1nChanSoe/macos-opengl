@@ -47,3 +47,15 @@ void LayerStack::PopOverlay(Layer *overlay)
         std::cout << "Overlay popped: " << overlay->GetName() << "\n";
     }
 }
+
+Layer *LayerStack::FindLayerByName(const std::string &name) const
+{
+    for (Layer *layer : m_Layers)
+    {
+        if (layer->GetName() == name)
+        {
+            return layer;
+        }
+    }
+    return nullptr;
+}

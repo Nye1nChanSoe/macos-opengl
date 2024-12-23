@@ -18,6 +18,8 @@ public:
     static Application &Get() { return *s_Instance; }
     inline Window &GetWindow() { return *m_Window; }
 
+    LayerStack &GetLayerStack() { return m_LayerStack; }
+
 private:
     std::unique_ptr<Window> m_Window;
     LayerStack m_LayerStack;

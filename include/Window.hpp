@@ -11,6 +11,9 @@
 class Window
 {
 public:
+    // type alias that can hold any callable objects
+    // callable objects -> lambda, free function, bound memeber functions
+    // that takes a single Event& parameter and returns void
     using EventCallbackFn = std::function<void(Event &)>;
     struct Properties
     {
@@ -32,6 +35,8 @@ public:
 
     GLFWwindow *GetNativeWindow() const { return m_Window; }
 
+    // this will be bound to Application's OnEvent method
+    // props.eventCallback will point to Application::OnEvent
     void inline SetEventCallback(const EventCallbackFn &callback) { m_WindowProperties.eventCallback = callback; }
 
     // Cursor modes

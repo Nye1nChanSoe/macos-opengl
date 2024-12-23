@@ -56,8 +56,12 @@ void Window::Initialize()
     // GLFW Callbacks
     glfwSetWindowCloseCallback(m_Window, [](GLFWwindow *window)
                                {
+        // is like taking the global pointer and casted it back stored in GLFW context
         Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+        // The event that i implemented
         WindowClosedEvent event;
+        // check the eventCallback is bound to Application::OnEvent method properly
+        // Calls Application::OnEvent
         props.eventCallback(event); });
 
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow *window, int width, int height)

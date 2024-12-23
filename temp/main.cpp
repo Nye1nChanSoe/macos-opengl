@@ -233,7 +233,7 @@ int main()
     Shader *shaderGouraud = shaderLib.GetShader("SolarSystemGouraud");
     Shader *shaderFlat = shaderLib.GetShader("SolarSystemFlat");
 
-    auto shaderNames = shaderLib.getShaderNames();
+    auto shaderNames = shaderLib.GetShaderNames();
     int selectedShader = 0; // Default shader index
 
     Camera camera;

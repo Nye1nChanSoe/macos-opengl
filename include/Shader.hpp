@@ -75,11 +75,13 @@ public:
     void UseShader(const std::string &shaderName);
     void RemoveShader(const std::string &shaderName);
 
-    void inline setShaderDefaultPath(const std::string &defaultPath) { m_ShaderDefaultPath = defaultPath; }
+    void inline SetShaderDefaultPath(const std::string &defaultPath) { m_ShaderDefaultPath = defaultPath; }
 
     Shader *GetShader(const std::string &shaderName);
 
-    std::vector<std::string> inline getShaderNames() const { return m_ShaderNames; }
+    std::vector<std::string> inline GetShaderNames() const { return m_ShaderNames; }
+
+    void ClearShaders();
 };
 
 #endif

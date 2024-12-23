@@ -18,7 +18,6 @@ void ImGuiLayer::OnAttach()
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable keyboard navigation
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable multi-viewport / platform windows
 
     // Setup ImGui style
     ImGui::StyleColorsDark();
@@ -52,25 +51,16 @@ void ImGuiLayer::OnUpdate(float deltaTime)
 
 void ImGuiLayer::OnRender()
 {
-    // Start a new ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    ShowDockingSpace();
     ShowLayerManagementUI();
 
-    // Render ImGui frame
+    ImGui::EndFrame();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    // Handle multi-viewport rendering
-    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        GLFWwindow *backupCurrentContext = glfwGetCurrentContext();
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-        glfwMakeContextCurrent(backupCurrentContext);
-    }
 }
 
 void ImGuiLayer::ShowLayerManagementUI()
@@ -88,4 +78,45 @@ void ImGuiLayer::ShowLayerManagementUI()
     }
 
     ImGui::End();
+}
+
+void ImGuiLayer::ShowDockingSpace()
+{
+    ImGuiIO &io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+    {
+        ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->WorkPos);
+        ImGui::SetNextWindowSize(viewport->WorkSize);
+        ImGui::SetNextWindowViewport(viewport->ID);
+
+        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
+                                       ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                                       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground |
+                                       ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::Begin("DockSpace", nullptr, windowFlags);
+        ImGui::PopStyleVar(3);
+
+        // Menu Bar for DockSpace
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::BeginMenu("Options"))
+            {
+                static bool showDemoWindow = false;
+                ImGui::MenuItem("Show Demo Window", nullptr, &showDemoWindow);
+                if (showDemoWindow)
+                    ImGui::ShowDemoWindow();
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
+
+        ImGuiID dockSpaceID = ImGui::GetID("DockSpace");
+        ImGui::DockSpace(dockSpaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+        ImGui::End();
+    }
 }

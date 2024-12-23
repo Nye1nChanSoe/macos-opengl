@@ -16,6 +16,7 @@ public:
 
 private:
     void ShowLayerManagementUI();
+    void ShowDockingSpace();
 };
 
 #endif // IMGUI_LAYER_HPP

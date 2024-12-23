@@ -3,7 +3,7 @@
 #include <iostream>
 
 SolarSystemLayer::SolarSystemLayer()
-    : Layer("SolarSystemLayerLayer"), m_Time(0.0f), m_OrbitalSpeedScale(0.1f),
+    : Layer("SolarSystemLayerLayer"), m_Time(0.0f), m_OrbitalSpeedScale(0.05f),
       m_CelestialBodies{
           {glm::vec3(0.0f, 0.0f, -20.0f), 50.0f, 2.0f, 7.25f, 0.0f, 0.0f},         // Sun
           {glm::vec3(0.0f, 0.0f, -50.0f), 0.38f, 10.0f, 0.03f, 30.0f, 47.87f},     // Mercury

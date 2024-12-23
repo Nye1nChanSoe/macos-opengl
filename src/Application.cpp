@@ -102,8 +102,6 @@ bool Application::OnWindowResize(WindowResizedEvent &e)
         return false; // let the event propagate
     }
 
-    // transformation of x and y from normalized device coordinates to window coordinates
-    glViewport(0, 0, e.GetWidth(), e.GetHeight());
     m_Minimized = false;
     return false;
 }

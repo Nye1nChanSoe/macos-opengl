@@ -24,7 +24,7 @@ public:
     void Unbind() const;
 
     GLuint GetTextureID() const { return m_TextureID; }
-    std::pair<int, int> Texture::GetDimensions() const;
+    std::pair<int, int> GetDimensions() const;
 
 private:
     void LoadFromFile(const std::string &path);

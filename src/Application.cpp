@@ -25,7 +25,7 @@ Application::Application()
         });
 
     // TODO: make layer handling more robust
-    auto *layer1 = new SolarSystem();
+    auto *layer1 = new SolarSystemLayer();
     m_LayerStack.PushLayer(layer1);
 
     auto *layer2 = new ImGuiLayer();
@@ -66,7 +66,7 @@ void Application::Run()
 
         // std::cout << "FPS: " << 1 / deltaTime << std::endl;
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (!m_Minimized)

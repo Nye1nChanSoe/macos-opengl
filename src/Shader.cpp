@@ -236,7 +236,10 @@ ShaderManager::ShaderManager()
 
 ShaderManager::~ShaderManager()
 {
-    ClearShaders();
+    for (auto &shader : m_Shaders)
+    {
+        delete shader.second;
+    }
 }
 
 void ShaderManager::AddShader(const std::string &shaderName, const std::string &vertexShaderPath, const std::string &fragmentShaderPath)
@@ -295,15 +298,4 @@ Shader *ShaderManager::GetShader(const std::string &shaderName)
         throw std::runtime_error("Shader with name " + shaderName + " not found.");
     }
     return it->second;
-}
-
-void ShaderManager::ClearShaders()
-{
-    for (auto &shader : m_Shaders)
-    {
-        delete shader.second;
-    }
-    m_Shaders.clear();
-    m_ShaderCache.clear();
-    m_ShaderNames.clear();
 }

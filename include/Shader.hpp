@@ -80,8 +80,6 @@ public:
     Shader *GetShader(const std::string &shaderName);
 
     std::vector<std::string> inline GetShaderNames() const { return m_ShaderNames; }
-
-    void ClearShaders();
 };
 
 #endif

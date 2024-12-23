@@ -2,7 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Application.hpp"
 
-Camera::Camera(glm::vec3 position)
+Camera::Camera()
     : m_Position(glm::vec3(0.0f, 0.0f, 70.0f)),
       m_Front(glm::normalize(glm::vec3(0.0f, 0.0f, 0.0f))),
       m_Up(0.0f, 1.0f, 0.0f),

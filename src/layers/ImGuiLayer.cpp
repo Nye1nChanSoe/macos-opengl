@@ -34,7 +34,7 @@ void ImGuiLayer::OnAttach()
     // Setup platform/renderer bindings
     GLFWwindow *window = static_cast<GLFWwindow *>(Application::Get().GetWindow().GetNativeWindow());
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330 core"); // Ensure the correct GLSL version
+    ImGui_ImplOpenGL3_Init("#version 410 core");
 }
 
 void ImGuiLayer::OnDetach()

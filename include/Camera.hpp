@@ -10,7 +10,8 @@
 class Camera
 {
 public:
-    Camera(glm::vec3 position);
+    Camera();
+    ~Camera() = default;
 
     glm::mat4 GetViewMatrix() const;
     void ProcessInput();

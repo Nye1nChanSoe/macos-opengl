@@ -16,6 +16,5 @@ Makefile
 .DS_Store
 
 # Editor-specific files
-.vscode/
 .idea/
 *.iml

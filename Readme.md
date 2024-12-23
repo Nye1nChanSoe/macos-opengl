@@ -50,5 +50,9 @@ cd ..
 Alternatively, you can run the shell script to build and execute the project in one go
 
 ```bash
-./build_and_run
+./generate.sh
 ```
+
+## **Dependencies Added**
+
+- [ImGui](https://github.com/ocornut/imgui/tree/docking) v1.91.7 WIP

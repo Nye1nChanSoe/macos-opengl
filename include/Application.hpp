@@ -4,6 +4,7 @@
 #include "Window.hpp"
 #include "LayerStack.hpp"
 #include "events/Event.hpp"
+#include "events/WindowEvent.hpp"
 
 class Application
 {
@@ -21,10 +22,19 @@ public:
     LayerStack &GetLayerStack() { return m_LayerStack; }
 
 private:
-    std::unique_ptr<Window> m_Window;
-    LayerStack m_LayerStack;
     bool m_Running = true;
+    bool m_Minimized = false;
+    float m_LastFrameTime = 0.0f;
+
+    std::unique_ptr<Window> m_Window;
+
+    LayerStack m_LayerStack;
     static Application *s_Instance;
+
+private:
+    // Eventhandlers
+    bool OnWindowClose(WindowClosedEvent &e);
+    bool OnWindowResize(WindowResizedEvent &e);
 };
 
 #endif

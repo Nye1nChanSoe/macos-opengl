@@ -4,18 +4,18 @@
 class Time
 {
 public:
-    Time();
+    Time(float time)
+        : m_Time(time)
+    {
+    }
 
-    double GetDeltaTime() const;
-    double GetFPS() const;
+    float inline GetSeconds() const { return m_Time; }
+    float inline GetMilliSeconds() const { return m_Time * 1000; }
 
-    // Call this method every frame to update the timer
-    void Update(double currentTime);
+    operator float() { return m_Time; }
 
 private:
-    double previousTime;
-    double deltaTime;
-    double fps;
+    float m_Time;
 };
 
 #endif

@@ -67,6 +67,8 @@ class EventDispatcher
 public:
     explicit EventDispatcher(Event &event) : m_Event(event) {}
 
+    // T = Type of the event to dispatch [WindowClosedEvent, KeyPressedEvent, etc..]
+    // F = Type of the function or callable [Will be deduced by compiler]
     template <typename T, typename F>
     bool Dispatch(const F &func)
     {

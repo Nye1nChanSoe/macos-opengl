@@ -41,7 +41,10 @@ public:
 
     // this will be bound to Application's OnEvent method
     // props.eventCallback will point to Application::OnEvent
-    void inline SetEventCallback(const EventCallbackFn &callback) { m_WindowProperties.m_EventCallback = callback; }
+    void inline SetEventCallback(const EventCallbackFn &callback)
+    {
+        m_WindowProperties.m_EventCallback = callback;
+    }
 
     // Cursor modes
     void DisableCursor();

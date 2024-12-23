@@ -15,9 +15,7 @@ Application::Application()
     }
     s_Instance = this;
 
-    Window::Properties props = {1000, 700, "macos-opengl", true};
-
-    m_Window = std::make_unique<Window>(props);
+    m_Window = std::make_unique<Window>();
     // bound to Application::OnEvent
     // In Window.cpp props.eventCallback(event) will call this method
     m_Window->SetEventCallback(

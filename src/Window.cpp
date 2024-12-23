@@ -6,10 +6,10 @@
 #include "events/WindowEvent.hpp"
 #include "events/MouseEvent.hpp"
 
-Window::Window(const Properties &props)
-    : m_WindowProperties(props), m_Window(nullptr)
+Window::Window(const InitializeWindowProps &props)
+    : m_Window(nullptr)
 {
-    Initialize();
+    Initialize(props);
 }
 
 Window::~Window()
@@ -17,8 +17,14 @@ Window::~Window()
     Shutdown();
 }
 
-void Window::Initialize()
+void Window::Initialize(const InitializeWindowProps &props)
 {
+    // initialize window's private properties
+    m_WindowProperties.m_Width = props.width;
+    m_WindowProperties.m_Height = props.height;
+    m_WindowProperties.m_Title = props.title;
+    m_WindowProperties.m_Vsync = props.vsync;
+
     glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, GLFW_ANGLE_PLATFORM_TYPE_METAL);
     if (!glfwInit())
     {
@@ -34,7 +40,7 @@ void Window::Initialize()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    m_Window = glfwCreateWindow(m_WindowProperties.width, m_WindowProperties.height, m_WindowProperties.title.c_str(), nullptr, nullptr);
+    m_Window = glfwCreateWindow(m_WindowProperties.m_Width, m_WindowProperties.m_Height, m_WindowProperties.m_Title.c_str(), nullptr, nullptr);
     if (!m_Window)
     {
         std::cerr << "Failed to create GLFW window!" << std::endl;
@@ -43,7 +49,7 @@ void Window::Initialize()
     }
 
     glfwMakeContextCurrent(m_Window);
-    SetVSync(m_WindowProperties.vsync);
+    SetVSync(m_WindowProperties.m_Vsync);
 
     std::cout << "Vendor:   " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
@@ -54,79 +60,100 @@ void Window::Initialize()
 
     // GLFW Callbacks
     // Window Close
-    glfwSetWindowCloseCallback(m_Window, [](GLFWwindow *window)
-                               {
-                                   Properties &props = *(Properties *)glfwGetWindowUserPointer(window);
-                                   WindowClosedEvent event;
-                                   props.eventCallback(event); // Calls Application::OnEvent
-                               });
+    glfwSetWindowCloseCallback(
+        m_Window, [](GLFWwindow *window)
+        {
+            WindowProperties &props = *(WindowProperties *)glfwGetWindowUserPointer(window);
+            WindowClosedEvent event;
+            // (hint: application's constructor will setEventCallback to its OnEvent method)
+            props.m_EventCallback(event); // Calls Application::OnEvent
+        });
 
     // Window Resize
-    glfwSetWindowSizeCallback(m_Window, [](GLFWwindow *window, int width, int height)
-                              {
-    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
-    props.width = width;
-    props.height = height;
+    glfwSetWindowSizeCallback(
+        m_Window,
+        [](GLFWwindow *window, int width, int height)
+        {
+            WindowProperties &props = *(WindowProperties *)glfwGetWindowUserPointer(window);
+            props.m_Width = width;
+            props.m_Height = height;
 
-    WindowResizedEvent event(width, height);
-    props.eventCallback(event); });
+            WindowResizedEvent event(width, height);
+            props.m_EventCallback(event);
+        });
 
     // Key Press and Release
-    glfwSetKeyCallback(m_Window, [](GLFWwindow *window, int keycode, int scancode, int action, int mods)
-                       {
-    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
-
-    switch (action) {
-        case GLFW_PRESS: {
-            KeyPressedEvent event(keycode, false); // Not a repeat
-            props.eventCallback(event);
-            break;
-        }
-        case GLFW_RELEASE: {
-            KeyReleasedEvent event(keycode);
-            props.eventCallback(event);
-            break;
-        }
-        case GLFW_REPEAT: {
-            KeyPressedEvent event(keycode, true); // Repeat event
-            props.eventCallback(event);
-            break;
-        }
-    } });
+    glfwSetKeyCallback(
+        m_Window,
+        [](GLFWwindow *window, int keycode, int scancode, int action, int mods)
+        {
+            WindowProperties &props = *(WindowProperties *)glfwGetWindowUserPointer(window);
+            switch (action)
+            {
+            case GLFW_PRESS:
+            {
+                KeyPressedEvent event(keycode, false); // Not a repeat
+                props.m_EventCallback(event);
+                break;
+            }
+            case GLFW_RELEASE:
+            {
+                KeyReleasedEvent event(keycode);
+                props.m_EventCallback(event);
+                break;
+            }
+            case GLFW_REPEAT:
+            {
+                KeyPressedEvent event(keycode, true); // Repeat event
+                props.m_EventCallback(event);
+                break;
+            }
+            }
+        });
 
     // Mouse Movement
-    glfwSetCursorPosCallback(m_Window, [](GLFWwindow *window, double xpos, double ypos)
-                             {
-    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
-
-    MouseMovedEvent event(static_cast<float>(xpos), static_cast<float>(ypos));
-    props.eventCallback(event); });
+    glfwSetCursorPosCallback(
+        m_Window,
+        [](GLFWwindow *window, double xpos, double ypos)
+        {
+            WindowProperties &props = *(WindowProperties *)glfwGetWindowUserPointer(window);
+            MouseMovedEvent event(static_cast<float>(xpos), static_cast<float>(ypos));
+            props.m_EventCallback(event);
+        });
 
     // Mouse Button Press and Release
-    glfwSetMouseButtonCallback(m_Window, [](GLFWwindow *window, int button, int action, int mods)
-                               {
-    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
-
-    switch (action) {
-        case GLFW_PRESS: {
-            MouseButtonPressedEvent event(button);
-            props.eventCallback(event);
-            break;
-        }
-        case GLFW_RELEASE: {
-            MouseButtonReleasedEvent event(button);
-            props.eventCallback(event);
-            break;
-        }
-    } });
+    glfwSetMouseButtonCallback(
+        m_Window,
+        [](GLFWwindow *window, int button, int action, int mods)
+        {
+            WindowProperties &props = *(WindowProperties *)glfwGetWindowUserPointer(window);
+            switch (action)
+            {
+            case GLFW_PRESS:
+            {
+                MouseButtonPressedEvent event(button);
+                props.m_EventCallback(event);
+                break;
+            }
+            case GLFW_RELEASE:
+            {
+                MouseButtonReleasedEvent event(button);
+                props.m_EventCallback(event);
+                break;
+            }
+            }
+        });
 
     // Mouse Scroll
-    glfwSetScrollCallback(m_Window, [](GLFWwindow *window, double xOffset, double yOffset)
-                          {
-    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+    glfwSetScrollCallback(
+        m_Window,
+        [](GLFWwindow *window, double xOffset, double yOffset)
+        {
+            WindowProperties &props = *(WindowProperties *)glfwGetWindowUserPointer(window);
 
-    MouseScrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
-    props.eventCallback(event); });
+            MouseScrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
+            props.m_EventCallback(event);
+        });
 }
 
 void Window::OnUpdate()
@@ -135,16 +162,17 @@ void Window::OnUpdate()
     glfwPollEvents();
 }
 
-void Window::SetVSync(bool enabled)
+void Window::SetVSync(bool sync)
 {
-    glfwSwapInterval(enabled ? 1 : 0);
-    m_WindowProperties.vsync = enabled;
+    glfwSwapInterval(sync);
+    m_WindowProperties.m_Vsync = sync;
 }
 
 void Window::Shutdown()
 {
     if (m_Window)
-        glfwTerminate();
+        glfwDestroyWindow(m_Window);
+    glfwTerminate();
 }
 
 void Window::DisableCursor()

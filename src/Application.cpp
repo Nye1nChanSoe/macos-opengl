@@ -18,6 +18,8 @@ Application::Application()
     Window::Properties props = {1000, 700, "macos-opengl", true};
 
     m_Window = std::make_unique<Window>(props);
+    // bound to Application::OnEvent
+    // In Window.cpp props.eventCallback(event) will call this method
     m_Window->SetEventCallback(
         [this](Event &event)
         { OnEvent(event); });
@@ -46,9 +48,7 @@ void Application::OnEvent(Event &event)
             break; // Stop propagation if the event is handled
         }
     }
-
-    // Handle core application events
-    if (event.GetType() == Event::Type::WindowClosed)
+    if (event.GetType() == Event::EventType::WindowClosed)
     {
         m_Running = false;
     }

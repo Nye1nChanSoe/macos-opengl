@@ -5,14 +5,14 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include <cstdint>
 #include <sstream>
 #include <iostream>
 
+// Base Event Class
 class Event
 {
 public:
-    enum Category : uint32_t
+    enum class EventCategory : uint32_t
     {
         None = 0,
         Keyboard = 1 << 0,                     // 0001
@@ -22,8 +22,7 @@ public:
         Input = Keyboard | Mouse | MouseButton // Combination
     };
 
-    // Event Types
-    enum class Type
+    enum class EventType
     {
         None = 0,
         KeyPressed,
@@ -40,20 +39,18 @@ public:
 
     virtual ~Event() = default;
 
-    virtual Type GetType() const = 0;
+    virtual EventType GetType() const = 0;
     virtual uint32_t GetCategoryFlags() const = 0;
     virtual std::string ToString() const = 0;
 
-    // Check if the event belongs to a specific category
-    bool IsInCategory(Category category) const
+    bool IsInCategory(EventCategory category) const
     {
-        return GetCategoryFlags() & category;
+        return GetCategoryFlags() & static_cast<uint32_t>(category);
     }
 
     bool IsHandled() const { return m_Handled; }
     void SetHandled(bool handled) { m_Handled = handled; }
 
-    // Overload the << operator for easy logging
     friend std::ostream &operator<<(std::ostream &os, const Event &event)
     {
         os << event.ToString();
@@ -68,33 +65,21 @@ protected:
 class EventDispatcher
 {
 public:
-    using EventCallback = std::function<void(Event &)>;
+    explicit EventDispatcher(Event &event) : m_Event(event) {}
 
-    // Subscribe to a specific event type
-    void Subscribe(Event::Type type, const EventCallback &callback)
+    template <typename T, typename F>
+    bool Dispatch(const F &func)
     {
-        m_EventCallbacks[type].push_back(callback);
-    }
-
-    // Dispatch an event to the appropriate handlers
-    void Dispatch(Event &event)
-    {
-        auto it = m_EventCallbacks.find(event.GetType());
-        if (it != m_EventCallbacks.end())
+        if (m_Event.GetType() == T::GetStaticType())
         {
-            for (auto &callback : it->second)
-            {
-                callback(event);
-                if (event.IsHandled())
-                {
-                    break; // Stop propagation if handled
-                }
-            }
+            m_Event.SetHandled(func(static_cast<T &>(m_Event)));
+            return true;
         }
+        return false;
     }
 
 private:
-    std::unordered_map<Event::Type, std::vector<EventCallback>> m_EventCallbacks;
+    Event &m_Event;
 };
 
 #endif

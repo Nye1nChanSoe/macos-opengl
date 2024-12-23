@@ -45,80 +45,88 @@ void Window::Initialize()
     glfwMakeContextCurrent(m_Window);
     SetVSync(m_WindowProperties.vsync);
 
-    // Set Window User Pointer for Callbacks
-    glfwSetWindowUserPointer(m_Window, &m_WindowProperties);
-
-    // Logging OpenGL details
     std::cout << "Vendor:   " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
     std::cout << "Version:  " << glGetString(GL_VERSION) << std::endl;
 
+    // Set window properties on GLFW context to retrieve them in callbacks
+    glfwSetWindowUserPointer(m_Window, &m_WindowProperties);
+
     // GLFW Callbacks
+    // Window Close
     glfwSetWindowCloseCallback(m_Window, [](GLFWwindow *window)
                                {
-        // is like taking the global pointer and casted it back stored in GLFW context
-        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
-        // The event that i implemented
-        WindowClosedEvent event;
-        // check the eventCallback is bound to Application::OnEvent method properly
-        // Calls Application::OnEvent
-        props.eventCallback(event); });
+                                   Properties &props = *(Properties *)glfwGetWindowUserPointer(window);
+                                   WindowClosedEvent event;
+                                   props.eventCallback(event); // Calls Application::OnEvent
+                               });
 
+    // Window Resize
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow *window, int width, int height)
                               {
-        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
-        props.width = width;
-        props.height = height;
+    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+    props.width = width;
+    props.height = height;
 
-        WindowResizedEvent event(width, height);
-        props.eventCallback(event); });
+    WindowResizedEvent event(width, height);
+    props.eventCallback(event); });
 
+    // Key Press and Release
     glfwSetKeyCallback(m_Window, [](GLFWwindow *window, int keycode, int scancode, int action, int mods)
                        {
-        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
 
-        switch (action)
-        {
-            case GLFW_PRESS:
-                {
-                    KeyPressedEvent event(keycode);
-                    props.eventCallback(event);
-                    break;
-                }
-            case GLFW_RELEASE:
-                {
-                    KeyReleasedEvent event(keycode);
-                    props.eventCallback(event);
-                    break;
-                }
-        } });
+    switch (action) {
+        case GLFW_PRESS: {
+            KeyPressedEvent event(keycode, false); // Not a repeat
+            props.eventCallback(event);
+            break;
+        }
+        case GLFW_RELEASE: {
+            KeyReleasedEvent event(keycode);
+            props.eventCallback(event);
+            break;
+        }
+        case GLFW_REPEAT: {
+            KeyPressedEvent event(keycode, true); // Repeat event
+            props.eventCallback(event);
+            break;
+        }
+    } });
 
+    // Mouse Movement
     glfwSetCursorPosCallback(m_Window, [](GLFWwindow *window, double xpos, double ypos)
                              {
-        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
 
-        MouseMovedEvent event(static_cast<float>(xpos), static_cast<float>(ypos));
-        props.eventCallback(event); });
+    MouseMovedEvent event(static_cast<float>(xpos), static_cast<float>(ypos));
+    props.eventCallback(event); });
 
+    // Mouse Button Press and Release
     glfwSetMouseButtonCallback(m_Window, [](GLFWwindow *window, int button, int action, int mods)
                                {
-        Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
 
-        switch (action)
-        {
-            case GLFW_PRESS:
-                {
-                    MouseButtonPressedEvent event(button);
-                    props.eventCallback(event);
-                    break;
-                }
-            case GLFW_RELEASE:
-                {
-                    MouseButtonReleasedEvent event(button);
-                    props.eventCallback(event);
-                    break;
-                }
-        } });
+    switch (action) {
+        case GLFW_PRESS: {
+            MouseButtonPressedEvent event(button);
+            props.eventCallback(event);
+            break;
+        }
+        case GLFW_RELEASE: {
+            MouseButtonReleasedEvent event(button);
+            props.eventCallback(event);
+            break;
+        }
+    } });
+
+    // Mouse Scroll
+    glfwSetScrollCallback(m_Window, [](GLFWwindow *window, double xOffset, double yOffset)
+                          {
+    Properties& props = *(Properties*)glfwGetWindowUserPointer(window);
+
+    MouseScrolledEvent event(static_cast<float>(xOffset), static_cast<float>(yOffset));
+    props.eventCallback(event); });
 }
 
 void Window::OnUpdate()

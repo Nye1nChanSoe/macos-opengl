@@ -5,35 +5,35 @@
 #include <sstream>
 
 // Base Key Event Class
+// cannot instantiate directly
 class KeyEvent : public Event
 {
 public:
+    uint32_t GetCategoryFlags() const override
+    {
+        return static_cast<uint32_t>(EventCategory::Keyboard) | static_cast<uint32_t>(EventCategory::Input);
+    }
+
     int GetKeyCode() const { return m_KeyCode; }
 
 protected:
-    KeyEvent(int keyCode) : m_KeyCode(keyCode) {}
-
+    explicit KeyEvent(int keyCode) : m_KeyCode(keyCode) {}
     int m_KeyCode;
 };
 
-// Key Pressed Event
 class KeyPressedEvent : public KeyEvent
 {
 public:
     KeyPressedEvent(int keyCode, bool isRepeat = false)
         : KeyEvent(keyCode), m_IsRepeat(isRepeat) {}
 
-    Type GetType() const override { return Type::KeyPressed; }
-
-    uint32_t GetCategoryFlags() const override
-    {
-        return Category::Keyboard | Category::Input;
-    }
+    static EventType GetStaticType() { return EventType::KeyPressed; }
+    EventType GetType() const override { return GetStaticType(); }
 
     std::string ToString() const override
     {
         std::ostringstream oss;
-        oss << "KeyPressedEvent: " << m_KeyCode << " (repeat: " << m_IsRepeat << ")";
+        oss << "KeyPressedEvent: " << m_KeyCode;
         return oss.str();
     }
 
@@ -41,18 +41,13 @@ private:
     bool m_IsRepeat;
 };
 
-// Key Released Event
 class KeyReleasedEvent : public KeyEvent
 {
 public:
-    KeyReleasedEvent(int keyCode) : KeyEvent(keyCode) {}
+    explicit KeyReleasedEvent(int keyCode) : KeyEvent(keyCode) {}
 
-    Type GetType() const override { return Type::KeyReleased; }
-
-    uint32_t GetCategoryFlags() const override
-    {
-        return Category::Keyboard | Category::Input;
-    }
+    static EventType GetStaticType() { return EventType::KeyReleased; }
+    EventType GetType() const override { return GetStaticType(); }
 
     std::string ToString() const override
     {
@@ -62,4 +57,20 @@ public:
     }
 };
 
-#endif // KEY_EVENT_H
+class KeyRepeatEvent : public KeyEvent
+{
+public:
+    explicit KeyRepeatEvent(int keyCode) : KeyEvent(keyCode) {}
+
+    static EventType GetStaticType() { return EventType::KeyRepeat; }
+    EventType GetType() const override { return GetStaticType(); }
+
+    std::string ToString() const override
+    {
+        std::ostringstream oss;
+        oss << "KeyRepeatEvent: " << m_KeyCode;
+        return oss.str();
+    }
+};
+
+#endif

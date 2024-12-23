@@ -4,18 +4,18 @@
 #include "Event.hpp"
 #include <sstream>
 
-// Window Resized Event
 class WindowResizedEvent : public Event
 {
 public:
     WindowResizedEvent(int width, int height)
         : m_Width(width), m_Height(height) {}
 
-    Type GetType() const override { return Type::WindowResized; }
+    static EventType GetStaticType() { return EventType::WindowResized; }
+    EventType GetType() const override { return GetStaticType(); }
 
     uint32_t GetCategoryFlags() const override
     {
-        return Category::Window;
+        return static_cast<uint32_t>(EventCategory::Window);
     }
 
     std::string ToString() const override
@@ -32,17 +32,17 @@ private:
     int m_Width, m_Height;
 };
 
-// Window Closed Event
 class WindowClosedEvent : public Event
 {
 public:
-    WindowClosedEvent() {}
+    WindowClosedEvent() = default;
 
-    Type GetType() const override { return Type::WindowClosed; }
+    static EventType GetStaticType() { return EventType::WindowClosed; }
+    EventType GetType() const override { return GetStaticType(); }
 
     uint32_t GetCategoryFlags() const override
     {
-        return Category::Window;
+        return static_cast<uint32_t>(EventCategory::Window);
     }
 
     std::string ToString() const override
@@ -51,4 +51,4 @@ public:
     }
 };
 
-#endif // WINDOW_EVENT_H
+#endif

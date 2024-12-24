@@ -28,7 +28,10 @@ void VertexArray::UnBind() const
 void VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer> &vertexBuffer)
 {
     if (!vertexBuffer->GetLayout().GetBufferElements().size())
+    {
         Logger::Critical("Vertex buffer needs a layout");
+        throw std::runtime_error("Vertex buffer needs a layout");
+    }
 
     glBindVertexArray(m_VertexArrayID);
     vertexBuffer->Bind();
@@ -38,12 +41,15 @@ void VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer> &vertexBuf
     std::size_t offset = 0;
     for (const auto &element : layout)
     {
-        Logger::Debug("Vertex Array Offset: {}", offset * 4);
+        Logger::Debug("Vertex Array Offset: {}", offset * BufferElement::GetSizeFromGLenum(element.m_OpenGLType));
         glEnableVertexAttribArray(index);
         glVertexAttribPointer(
-            index, element.m_Count, element.m_OpenGLType,
-            element.m_IsNormalized, layout.GetStride(),
-            (const void *)(offset * 4));
+            index,
+            element.m_Count,
+            element.m_OpenGLType,
+            element.m_IsNormalized,
+            layout.GetStride(),
+            (const void *)(offset * BufferElement::GetSizeFromGLenum(element.m_OpenGLType)));
         index++;
         offset += element.m_Count;
     }

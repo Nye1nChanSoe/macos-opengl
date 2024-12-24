@@ -2,11 +2,12 @@
 #define INDEX_BUFFER_HPP
 
 #include <memory>
+#include <vector>
 
 class IndexBuffer
 {
 public:
-    IndexBuffer(uint32_t *data, uint32_t indexCount);
+    IndexBuffer(const std::vector<unsigned int> &vecIndexBufferData);
     ~IndexBuffer();
 
     void Bind() const;
@@ -14,7 +15,7 @@ public:
 
     inline uint32_t GetCount() const { return m_Count; }
 
-    static std::shared_ptr<IndexBuffer> Create(uint32_t *data, uint32_t indexCount);
+    static std::shared_ptr<IndexBuffer> Create(const std::vector<unsigned int> &vecIndexBufferData);
 
 private:
     uint32_t m_IndexBufferID;

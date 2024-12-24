@@ -3,11 +3,12 @@
 
 #include "BufferLayout.hpp"
 #include <memory>
+#include <vector>
 
 class VertexBuffer
 {
 public:
-    VertexBuffer(float *data, uint32_t size);
+    VertexBuffer(const std::vector<float> &vecBufferData);
     ~VertexBuffer();
 
     void Bind() const;
@@ -16,7 +17,7 @@ public:
     void SetLayout(const BufferLayout &layout) { m_Layout = layout; }
     BufferLayout &GetLayout() { return m_Layout; }
 
-    static std::shared_ptr<VertexBuffer> Create(float *data, uint32_t size);
+    static std::shared_ptr<VertexBuffer> Create(const std::vector<float> &vecBufferData);
 
 private:
     uint32_t m_VertexBufferID;

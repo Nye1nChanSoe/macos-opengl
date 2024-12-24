@@ -2,6 +2,7 @@
 #define VERTEX_ARRAY_HPP
 
 #include <memory>
+#include <vector>
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
 

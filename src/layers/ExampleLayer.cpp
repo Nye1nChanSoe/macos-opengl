@@ -15,7 +15,7 @@ void ExampleLayer::OnAttach()
 {
     glEnable(GL_DEPTH_TEST);
 
-    float vertices[] = {
+    std::vector<float> vertices = {
         -0.5f, 0.0f, -0.5f, // 0: Bottom-left
         0.5f, 0.0f, -0.5f,  // 1: Bottom-right
         0.5f, 0.0f, 0.5f,   // 2: Top-right
@@ -23,7 +23,7 @@ void ExampleLayer::OnAttach()
         0.0f, 1.0f, 0.0f    // 4: Apex
     };
 
-    unsigned int indices[] = {
+    std::vector<unsigned int> indices = {
         // Base (two triangles)
         0, 1, 2, // First triangle of the base
         2, 3, 0, // Second triangle of the base
@@ -40,10 +40,10 @@ void ExampleLayer::OnAttach()
         // {BufferAttributeType::Vec2, "aTexCoords"},
     };
 
-    m_VBO = VertexBuffer::Create(vertices, sizeof(vertices));
+    m_VBO = VertexBuffer::Create(vertices);
     m_VBO->SetLayout(layout);
 
-    m_EBO = IndexBuffer::Create(indices, sizeof(indices) / sizeof(int));
+    m_EBO = IndexBuffer::Create(indices);
 
     m_VAO = VertexArray::Create();
     m_VAO->AddVertexBuffer(m_VBO);

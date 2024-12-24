@@ -5,6 +5,7 @@
 #include <OpenGL/gl3.h>
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include "Logger.hpp"
 
 // i prefix = integer
@@ -46,8 +47,11 @@ struct BufferElement
     GLint m_Count; // number of components (count) in each attribute
 
     BufferElement(BufferAttributeType attributeType, const ShaderLayoutName &name, Normalized isNormalized = false)
-        : m_Type(attributeType), m_ShaderLayoutName(name), m_IsNormalized(isNormalized),
-          m_OpenGLType(GetGLenumFromType(attributeType)), m_Count(GetCountFromType(attributeType))
+        : m_Type(attributeType),
+          m_ShaderLayoutName(name),
+          m_IsNormalized(isNormalized),
+          m_OpenGLType(GetGLenumFromAttribType(attributeType)),
+          m_Count(GetCountFromType(attributeType))
     {
     }
 
@@ -87,49 +91,50 @@ struct BufferElement
             return 4 * 4;
         default:
             Logger::Critical("Unknown BufferAttributeType");
-            return 0;
+            throw std::runtime_error("Unknown BufferAttributeType");
         }
     };
 
-    static GLint GetSizeFromType(BufferAttributeType type)
+    static GLint GetSizeFromAttribType(BufferAttributeType type)
     {
+        GLenum glEnum = GetGLenumFromAttribType(type);
         switch (type)
         {
         case BufferAttributeType::iVec:
-            return 4 * 1;
+            return GetSizeFromGLenum(glEnum) * 1;
         case BufferAttributeType::iVec2:
-            return 4 * 2;
+            return GetSizeFromGLenum(glEnum) * 2;
         case BufferAttributeType::iVec3:
-            return 4 * 3;
+            return GetSizeFromGLenum(glEnum) * 3;
         case BufferAttributeType::iVec4:
-            return 4 * 4;
+            return GetSizeFromGLenum(glEnum) * 4;
         case BufferAttributeType::Vec:
-            return 4 * 1;
+            return GetSizeFromGLenum(glEnum) * 1;
         case BufferAttributeType::Vec2:
-            return 4 * 2;
+            return GetSizeFromGLenum(glEnum) * 2;
         case BufferAttributeType::Vec3:
-            return 4 * 3;
+            return GetSizeFromGLenum(glEnum) * 3;
         case BufferAttributeType::Vec4:
-            return 4 * 4;
+            return GetSizeFromGLenum(glEnum) * 4;
         case BufferAttributeType::iMat2:
-            return 4 * 2 * 2;
+            return GetSizeFromGLenum(glEnum) * 2 * 2;
         case BufferAttributeType::iMat3:
-            return 4 * 3 * 3;
+            return GetSizeFromGLenum(glEnum) * 3 * 3;
         case BufferAttributeType::iMat4:
-            return 4 * 4 * 4;
+            return GetSizeFromGLenum(glEnum) * 4 * 4;
         case BufferAttributeType::Mat2:
-            return 4 * 2 * 2;
+            return GetSizeFromGLenum(glEnum) * 2 * 2;
         case BufferAttributeType::Mat3:
-            return 4 * 3 * 3;
+            return GetSizeFromGLenum(glEnum) * 3 * 3;
         case BufferAttributeType::Mat4:
-            return 4 * 4 * 4;
+            return GetSizeFromGLenum(glEnum) * 4 * 4;
         default:
             Logger::Critical("Unknown BufferAttributeType");
-            return 0;
+            throw std::runtime_error("Unknown BufferAttributeType");
         }
-    };
+    }
 
-    static GLenum GetGLenumFromType(BufferAttributeType type)
+    static GLenum GetGLenumFromAttribType(BufferAttributeType type)
     {
         switch (type)
         {
@@ -151,7 +156,33 @@ struct BufferElement
             return GL_FLOAT;
         default:
             Logger::Critical("Unknown BufferAttributeType");
-            return 0;
+            throw std::runtime_error("Unknown BufferAttributeType");
+        }
+    };
+
+    static std::size_t GetSizeFromGLenum(GLenum glEnum)
+    {
+        switch (glEnum)
+        {
+        case GL_BYTE:
+            return sizeof(char);
+        case GL_UNSIGNED_BYTE:
+            return sizeof(unsigned char);
+        case GL_SHORT:
+            return sizeof(short);
+        case GL_UNSIGNED_SHORT:
+            return sizeof(unsigned short);
+        case GL_INT:
+            return sizeof(int);
+        case GL_UNSIGNED_INT:
+            return sizeof(unsigned int);
+        case GL_FLOAT:
+            return sizeof(float);
+        case GL_DOUBLE:
+            return sizeof(double);
+        default:
+            Logger::Critical("Unknown GLenum");
+            throw std::runtime_error("Unknown GLenum");
         }
     };
 };
@@ -170,7 +201,7 @@ private:
 
 public:
     BufferLayout()
-        : m_Stride(0)
+        : m_Stride(0), m_BufferElements()
     {
     }
 
@@ -179,7 +210,7 @@ public:
     {
         for (auto &bufferElement : bufferElements)
         {
-            m_Stride += bufferElement.m_Count;
+            m_Stride += BufferElement::GetSizeFromAttribType(bufferElement.m_Type);
         }
         Logger::Debug("BufferLayout Stride: {}", m_Stride);
     }

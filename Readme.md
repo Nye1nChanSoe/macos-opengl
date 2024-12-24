@@ -68,9 +68,7 @@ Alternatively, you can run the shell script to build and execute the project in 
 
 1. [x] **Integrate SpdLog for Debugging**
 
-2. [ ] **BufferLayout class for VAO, VBO, EBO**
-
-   - Create and manage layouts for buffer objects used in rendering.
+2. [x] **BufferLayout class for VAO, VBO, EBO**
 
 3. [ ] **Imgui overlay for textures, shaders, object manipulation, and input via mouse clicks**
 

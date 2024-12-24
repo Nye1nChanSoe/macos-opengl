@@ -3,12 +3,12 @@
 #include <OpenGL/gl3.h>
 #include "buffers/IndexBuffer.hpp"
 
-IndexBuffer::IndexBuffer(uint32_t *data, uint32_t indexCount)
-    : m_IndexBufferID(0), m_Count(indexCount)
+IndexBuffer::IndexBuffer(const std::vector<unsigned int> &vecIndexBufferData)
+    : m_IndexBufferID(0), m_Count(vecIndexBufferData.size())
 {
     glGenBuffers(1, &m_IndexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IndexBufferID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(uint32_t), data, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, vecIndexBufferData.size() * sizeof(unsigned int), vecIndexBufferData.data(), GL_STATIC_DRAW);
 }
 
 IndexBuffer::~IndexBuffer()
@@ -26,7 +26,7 @@ void IndexBuffer::UnBind() const
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-std::shared_ptr<IndexBuffer> IndexBuffer::Create(uint32_t *data, uint32_t indexCount)
+std::shared_ptr<IndexBuffer> IndexBuffer::Create(const std::vector<unsigned int> &vecIndexBufferData)
 {
-    return std::make_shared<IndexBuffer>(data, indexCount);
+    return std::make_shared<IndexBuffer>(vecIndexBufferData);
 }

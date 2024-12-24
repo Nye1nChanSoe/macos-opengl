@@ -2,6 +2,7 @@
 #include "Window.hpp"
 #include "layers/SolarSystem.hpp"
 #include "layers/ImGuiOverlay.hpp"
+#include "layers/ExampleLayer.hpp"
 #include "Time.hpp"
 #include "Logger.hpp"
 
@@ -27,8 +28,11 @@ Application::Application()
     auto *layer1 = new SolarSystemLayer();
     m_LayerStack.PushLayer(layer1);
 
-    auto *layer2 = new ImGuiOverlay();
-    m_LayerStack.PushOverlay(layer2);
+    auto *overlay1 = new ImGuiOverlay();
+    m_LayerStack.PushOverlay(overlay1);
+
+    auto *layer2 = new ExampleLayer();
+    m_LayerStack.PushLayer(layer2);
 }
 
 Application::~Application()

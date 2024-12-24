@@ -2,6 +2,10 @@
 #define EXAMPLE_LAYER_HPP
 
 #include "Layer.hpp"
+#include "buffers/VertexBuffer.hpp"
+#include "buffers/IndexBuffer.hpp"
+#include "buffers/VertexArray.hpp"
+#include "Shader.hpp"
 
 class ExampleLayer : public Layer
 {
@@ -13,6 +17,12 @@ public:
     void OnDetach() override;
     void OnUpdate(float deltaTime) override;
     void OnRender() override;
+
+private:
+    std::shared_ptr<VertexBuffer> m_VBO;
+    std::shared_ptr<IndexBuffer> m_EBO;
+    std::shared_ptr<VertexArray> m_VAO;
+    std::unique_ptr<Shader> m_Shader;
 };
 
 #endif

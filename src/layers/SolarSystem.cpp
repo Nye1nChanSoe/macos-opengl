@@ -1,5 +1,4 @@
 #include "layers/SolarSystem.hpp"
-#include "Application.hpp"
 #include "Logger.hpp"
 
 SolarSystemLayer::SolarSystemLayer()

@@ -5,7 +5,10 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-ImGuiOverlay::ImGuiOverlay() : Layer("ImGuiOverlay") {}
+ImGuiOverlay::ImGuiOverlay()
+    : Layer("ImGuiOverlay"), m_Time(0.0f)
+{
+}
 
 ImGuiOverlay::~ImGuiOverlay() {}
 
@@ -28,6 +31,8 @@ void ImGuiOverlay::OnAttach()
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
+    io.Fonts->AddFontFromFileTTF("assets/fonts/Roboto-Regular.ttf", 13.0f);
+    io.Fonts->Build();
 
     // Setup platform/renderer bindings
     GLFWwindow *window = static_cast<GLFWwindow *>(Application::Get().GetWindow().GetNativeWindow());
@@ -46,6 +51,7 @@ void ImGuiOverlay::OnDetach()
 void ImGuiOverlay::OnUpdate(float deltaTime)
 {
     // ImGui doesn't use update logic in most cases; skip implementation if unnecessary
+    m_Time = deltaTime;
 }
 
 void ImGuiOverlay::OnRender()
@@ -56,6 +62,8 @@ void ImGuiOverlay::OnRender()
 
     ShowDockingSpace();
     ShowLayerManagementUI();
+    ShowPerformanceMetrics();
+    ShowGraphicsInfo();
 
     ImGui::EndFrame();
     ImGui::Render();
@@ -76,6 +84,29 @@ void ImGuiOverlay::ShowLayerManagementUI()
             layer->SetVisibility(isVisible);
     }
 
+    ImGui::End();
+}
+
+void ImGuiOverlay::ShowPerformanceMetrics()
+{
+    float fps = 1.0f / m_Time;
+    ImGui::Begin("Performance Metrics");
+    ImGui::Text("FPS: %.2f", fps);
+    ImGui::Text("Delta Time: %.3f ms", m_Time.GetMilliSeconds());
+    ImGui::End();
+}
+
+void ImGuiOverlay::ShowGraphicsInfo()
+{
+    // Retrieve grphics information
+    const GLubyte *renderer = glGetString(GL_RENDERER);
+    const GLubyte *version = glGetString(GL_VERSION);
+    const GLubyte *vendor = glGetString(GL_VENDOR);
+
+    ImGui::Begin("Graphics Info");
+    ImGui::Text("Renderer: %s", renderer);
+    ImGui::Text("OpenGL Version: %s", version);
+    ImGui::Text("Vendor: %s", vendor);
     ImGui::End();
 }
 

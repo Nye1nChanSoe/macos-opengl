@@ -36,6 +36,7 @@ void SolarSystemLayer::OnAttach()
     glGenBuffers(1, &m_VBO);
     glGenBuffers(1, &m_EBO);
 
+    // after this binding VAO will remember everything underneath
     glBindVertexArray(m_VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
@@ -50,6 +51,9 @@ void SolarSystemLayer::OnAttach()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float))); // Texture Coords
     glEnableVertexAttribArray(2);
+
+    // Unbind VAO for safety
+    glBindVertexArray(0);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -132,6 +136,7 @@ void SolarSystemLayer::OnRender()
         m_CelestialTextures[i]->Bind();
         glBindVertexArray(m_VAO);
         glDrawElements(GL_TRIANGLES, m_SphereIndices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         // Render moon orbiting Earth
         if (i == 3) // Earth index
@@ -148,6 +153,7 @@ void SolarSystemLayer::OnRender()
             m_MoonTexture->Bind();
             glBindVertexArray(m_VAO);
             glDrawElements(GL_TRIANGLES, m_SphereIndices.size(), GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
         }
     }
 }

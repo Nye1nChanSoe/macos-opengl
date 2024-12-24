@@ -2,9 +2,13 @@
 #define IMGUI_OVERLAY_HPP
 
 #include "Layer.hpp"
+#include "Time.hpp"
 
 class ImGuiOverlay : public Layer
 {
+private:
+    Time m_Time;
+
 public:
     ImGuiOverlay();
     virtual ~ImGuiOverlay();
@@ -16,6 +20,8 @@ public:
 
 private:
     void ShowLayerManagementUI();
+    void ShowPerformanceMetrics();
+    void ShowGraphicsInfo();
     void ShowDockingSpace();
 };
 

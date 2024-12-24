@@ -17,10 +17,12 @@ It ensures compatibility and performance on **Apple silicon** hardware.
 
   - [GLFW](https://www.glfw.org/) for windowing and input handling.
   - [GLM](https://github.com/g-truc/glm) for mathematics
+  - [spdlog](https://github.com/gabime/spdlog) for fast C++ logging
 
     ```bash
     brew install glfw
     brew install glm
+    brew install spdlog
     ```
 
 ## **Generating build configurations**

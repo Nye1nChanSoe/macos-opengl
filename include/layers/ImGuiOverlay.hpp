@@ -1,5 +1,5 @@
-#ifndef IMGUI_LAYER_HPP
-#define IMGUI_LAYER_HPP
+#ifndef IMGUI_OVERLAY_HPP
+#define IMGUI_OVERLAY_HPP
 
 #include "Layer.hpp"
 

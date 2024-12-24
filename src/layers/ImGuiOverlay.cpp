@@ -1,4 +1,4 @@
-#include "layers/ImGuiLayer.hpp"
+#include "layers/ImGuiOverlay.hpp"
 #include "Application.hpp"
 #include <iostream>
 
@@ -6,11 +6,11 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {}
+ImGuiOverlay::ImGuiOverlay() : Layer("ImGuiOverlay") {}
 
-ImGuiLayer::~ImGuiLayer() {}
+ImGuiOverlay::~ImGuiOverlay() {}
 
-void ImGuiLayer::OnAttach()
+void ImGuiOverlay::OnAttach()
 {
     // Setup ImGui context
     IMGUI_CHECKVERSION();
@@ -36,7 +36,7 @@ void ImGuiLayer::OnAttach()
     ImGui_ImplOpenGL3_Init("#version 410 core");
 }
 
-void ImGuiLayer::OnDetach()
+void ImGuiOverlay::OnDetach()
 {
     // Cleanup ImGui
     ImGui_ImplOpenGL3_Shutdown();
@@ -44,12 +44,12 @@ void ImGuiLayer::OnDetach()
     ImGui::DestroyContext();
 }
 
-void ImGuiLayer::OnUpdate(float deltaTime)
+void ImGuiOverlay::OnUpdate(float deltaTime)
 {
     // ImGui doesn't use update logic in most cases; skip implementation if unnecessary
 }
 
-void ImGuiLayer::OnRender()
+void ImGuiOverlay::OnRender()
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -63,7 +63,7 @@ void ImGuiLayer::OnRender()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiLayer::ShowLayerManagementUI()
+void ImGuiOverlay::ShowLayerManagementUI()
 {
     ImGui::Begin("Layer Management");
 
@@ -80,7 +80,7 @@ void ImGuiLayer::ShowLayerManagementUI()
     ImGui::End();
 }
 
-void ImGuiLayer::ShowDockingSpace()
+void ImGuiOverlay::ShowDockingSpace()
 {
     ImGuiIO &io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)

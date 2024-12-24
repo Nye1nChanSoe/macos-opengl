@@ -3,11 +3,11 @@
 
 #include "Layer.hpp"
 
-class ImGuiLayer : public Layer
+class ImGuiOverlay : public Layer
 {
 public:
-    ImGuiLayer();
-    virtual ~ImGuiLayer();
+    ImGuiOverlay();
+    virtual ~ImGuiOverlay();
 
     void OnAttach() override;
     void OnDetach() override;

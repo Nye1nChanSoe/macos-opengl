@@ -3,7 +3,7 @@
 #include <iostream>
 #include <memory>
 #include "layers/SolarSystem.hpp"
-#include "layers/ImGuiLayer.hpp"
+#include "layers/ImGuiOverlay.hpp"
 #include "Time.hpp"
 
 Application *Application::s_Instance = nullptr;
@@ -28,7 +28,7 @@ Application::Application()
     auto *layer1 = new SolarSystemLayer();
     m_LayerStack.PushLayer(layer1);
 
-    auto *layer2 = new ImGuiLayer();
+    auto *layer2 = new ImGuiOverlay();
     m_LayerStack.PushOverlay(layer2);
 }
 

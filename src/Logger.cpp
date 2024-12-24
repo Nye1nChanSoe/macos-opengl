@@ -18,33 +18,3 @@ Logger::Logger()
 
     spdlog::info("Logger initialized successfully!");
 }
-
-void Logger::TraceImpl(const std::string &message)
-{
-    m_Logger->trace(message);
-}
-
-void Logger::DebugImpl(const std::string &message)
-{
-    m_Logger->debug(message);
-}
-
-void Logger::InfoImpl(const std::string &message)
-{
-    m_Logger->info(message);
-}
-
-void Logger::WarnImpl(const std::string &message)
-{
-    m_Logger->warn(message);
-}
-
-void Logger::ErrorImpl(const std::string &message)
-{
-    m_Logger->error(message);
-}
-
-void Logger::CriticalImpl(const std::string &message)
-{
-    m_Logger->critical(message);
-}

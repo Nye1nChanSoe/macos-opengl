@@ -1,6 +1,6 @@
 #include "layers/SolarSystem.hpp"
 #include "Application.hpp"
-#include <iostream>
+#include "Logger.hpp"
 
 SolarSystemLayer::SolarSystemLayer()
     : Layer("SolarSystemLayerLayer"), m_Time(0.0f), m_OrbitalSpeedScale(0.05f),
@@ -17,17 +17,17 @@ SolarSystemLayer::SolarSystemLayer()
           {glm::vec3(0.0f, 2.0f, -210.0f), 0.18f, 5.0f, 122.5f, 180.0f, 4.74f}     // Pluto
       }
 {
-    std::cout << GetName() << " Added" << std::endl;
+    Logger::Debug("{} Added", m_DebugName);
 }
 
 SolarSystemLayer::~SolarSystemLayer()
 {
-    std::cout << GetName() << " Removed" << std::endl;
+    Logger::Debug("{} Removed", m_DebugName);
 }
 
 void SolarSystemLayer::OnAttach()
 {
-    std::cout << GetName() << " Attached" << std::endl;
+    Logger::Debug("{} Attached", m_DebugName);
     // Generate sphere data
     GenerateSphere(m_SphereVertices, m_SphereIndices, 0.5f, 36, 18);
 
@@ -82,7 +82,7 @@ void SolarSystemLayer::OnAttach()
 
 void SolarSystemLayer::OnDetach()
 {
-    std::cout << GetName() << " Detached" << std::endl;
+    Logger::Debug("{} Detached", m_DebugName);
     glDeleteVertexArrays(1, &m_VAO);
     glDeleteBuffers(1, &m_VBO);
     glDeleteBuffers(1, &m_EBO);

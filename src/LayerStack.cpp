@@ -1,5 +1,4 @@
 #include "LayerStack.hpp"
-#include <iostream>
 
 LayerStack::~LayerStack()
 {

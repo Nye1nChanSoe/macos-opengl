@@ -1,6 +1,5 @@
 #include "layers/ImGuiOverlay.hpp"
 #include "Application.hpp"
-#include <iostream>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"

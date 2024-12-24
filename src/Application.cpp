@@ -1,10 +1,9 @@
 #include "Application.hpp"
 #include "Window.hpp"
-#include <iostream>
-#include <memory>
 #include "layers/SolarSystem.hpp"
 #include "layers/ImGuiOverlay.hpp"
 #include "Time.hpp"
+#include "Logger.hpp"
 
 Application *Application::s_Instance = nullptr;
 
@@ -35,7 +34,7 @@ Application::Application()
 Application::~Application()
 {
     // Cleanup resources
-    std::cout << "Application shutting down.\n";
+    Logger::Debug("Application shutting down");
 }
 
 void Application::OnEvent(Event &event)
@@ -64,7 +63,7 @@ void Application::Run()
         Time deltaTime = time - m_LastFrameTime;
         m_LastFrameTime = time;
 
-        // std::cout << "FPS: " << 1 / deltaTime << std::endl;
+        // Logger::Info("FPS: {}", 1 / deltaTime);
 
         // glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -94,8 +93,8 @@ bool Application::OnWindowClose(WindowClosedEvent &e)
 
 bool Application::OnWindowResize(WindowResizedEvent &e)
 {
-    std::cout << "Width: " << e.GetWidth() << "\n";
-    std::cout << "Height: " << e.GetHeight() << "\n";
+    Logger::Debug("Width: {}", e.GetWidth());
+    Logger::Debug("Height: {}", e.GetHeight());
     if (e.GetWidth() == 0 && e.GetHeight() == 0)
     {
         m_Minimized = true;

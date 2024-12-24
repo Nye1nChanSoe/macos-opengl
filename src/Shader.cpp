@@ -3,7 +3,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <glm/gtc/type_ptr.hpp>
-#include <iostream>
+
+#include "Logger.hpp"
 
 // each shader file can have more than one type (vertex and fragment combiend)
 Shader::Shader(const char *shaderFilePath)
@@ -119,8 +120,8 @@ GLuint Shader::CompileShader(const char *source, GLenum shaderType) const
     glShaderSource(shader, 1, &source, nullptr);
     glCompileShader(shader);
     CheckCompileErrors(shader, shaderType);
-    std::cout << "[INFO]: Shader compiled with program ID: " << shader << "\n";
 
+    Logger::Info("Shader compiled with program ID: {}", shader);
     return shader;
 }
 
@@ -133,7 +134,7 @@ void Shader::LinkProgram(const std::vector<GLuint> &shaders)
     }
     glLinkProgram(m_ID);
     CheckLinkErrors(m_ID);
-    std::cout << "[INFO]: Shader linked with ID: " << m_ID << "\n";
+    Logger::Info("Shader linked with ID: {}", m_ID);
 }
 
 void Shader::CheckCompileErrors(GLuint shader, GLenum type) const
@@ -223,7 +224,7 @@ GLint Shader::GetUniformLocation(const std::string &uniformName)
 
     auto location = glGetUniformLocation(m_ID, uniformName.c_str());
     if (location == -1)
-        std::cout << "[SHADER-ID: " << m_ID << "] Uniform " << uniformName << " not found!" << "\n";
+        Logger::Warn("ShaderID-{} uniform {} not found!", m_ID, uniformName);
     m_UniformLocationCache[uniformName] = location;
 
     return location;
@@ -252,8 +253,8 @@ void ShaderManager::AddShader(const std::string &shaderName, const std::string &
     std::string fullVertexShaderPath = m_ShaderDefaultPath + vertexShaderPath;
     std::string fullFragmentShaderPath = m_ShaderDefaultPath + fragmentShaderPath;
 
-    std::cout << "[INFO]: Shader added from path: " << fullVertexShaderPath << "\n";
-    std::cout << "[INFO]: Shader added from path: " << fullFragmentShaderPath << "\n";
+    Logger::Info("Shader added from path: {}", fullVertexShaderPath);
+    Logger::Info("Shader added from path: {}", fullFragmentShaderPath);
 
     m_Shaders[shaderName] = new Shader(fullVertexShaderPath.c_str(), fullFragmentShaderPath.c_str());
     m_ShaderNames.push_back(shaderName);
@@ -278,7 +279,7 @@ void ShaderManager::RemoveShader(const std::string &shaderName)
         m_ShaderNames.erase(nameIt);
     }
 
-    std::cout << "[INFO]: Shader Removed: " << shaderName << "\n";
+    Logger::Info("Shader removed: {}", shaderName);
 }
 
 void ShaderManager::UseShader(const std::string &shaderName)

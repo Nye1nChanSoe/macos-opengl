@@ -66,9 +66,7 @@ Alternatively, you can run the shell script to build and execute the project in 
 
 ## **TODO List**
 
-1. [ ] **Integrate SpdLog for Debugging**
-
-   - Add logging for debugging and categorizing log levels (Info, Debug, Warn, Error).
+1. [x] **Integrate SpdLog for Debugging**
 
 2. [ ] **BufferLayout class for VAO, VBO, EBO**
 

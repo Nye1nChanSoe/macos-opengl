@@ -1,10 +1,10 @@
 // Window.cpp
 #include "Window.hpp"
-#include <iostream>
 
 #include "events/KeyEvent.hpp"
 #include "events/WindowEvent.hpp"
 #include "events/MouseEvent.hpp"
+#include "Logger.hpp"
 
 Window::Window(const InitializeWindowProps &props)
     : m_Window(nullptr)
@@ -51,9 +51,9 @@ void Window::Initialize(const InitializeWindowProps &props)
     glfwMakeContextCurrent(m_Window);
     SetVSync(m_WindowProperties.m_Vsync);
 
-    std::cout << "Vendor:   " << glGetString(GL_VENDOR) << std::endl;
-    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
-    std::cout << "Version:  " << glGetString(GL_VERSION) << std::endl;
+    Logger::Info("Vendor: {}", std::string(reinterpret_cast<const char *>(glGetString(GL_VENDOR))));
+    Logger::Info("Renderer: {}", std::string(reinterpret_cast<const char *>(glGetString(GL_RENDERER))));
+    Logger::Info("Version: {}", std::string(reinterpret_cast<const char *>(glGetString(GL_VERSION))));
 
     // Set window properties on GLFW context to retrieve them in callbacks
     glfwSetWindowUserPointer(m_Window, &m_WindowProperties);

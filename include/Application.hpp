@@ -5,6 +5,7 @@
 #include "LayerStack.hpp"
 #include "events/Event.hpp"
 #include "events/WindowEvent.hpp"
+#include <memory>
 
 class Application
 {

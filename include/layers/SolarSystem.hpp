@@ -10,6 +10,10 @@
 #include "Shader.hpp"
 #include "Texture.hpp"
 
+#include "buffers/VertexBuffer.hpp"
+#include "buffers/IndexBuffer.hpp"
+#include "buffers/VertexArray.hpp"
+
 struct CelestialBody
 {
     glm::vec3 position;
@@ -46,8 +50,8 @@ private:
 
 private:
     Camera m_Camera;
-    ShaderManager m_ShaderManager;
-    Shader *m_CurrentShader;
+    std::unique_ptr<ShaderManager> m_ShaderManager;
+    std::unique_ptr<TextureManager> m_TextureManager;
 
     float m_Time;
     float m_OrbitalSpeedScale;
@@ -58,17 +62,15 @@ private:
     glm::vec3 m_LightPosition;
     glm::vec3 m_LightColor;
 
-    GLuint m_VAO, m_VBO, m_EBO;
-    GLuint m_OrbitLineVAO, m_OrbitLineVBO;
+    std::shared_ptr<VertexBuffer> m_VBO;
+    std::shared_ptr<IndexBuffer> m_EBO;
+    std::shared_ptr<VertexArray> m_VAO;
 
     std::vector<float> m_SphereVertices;
     std::vector<unsigned int> m_SphereIndices;
-    std::vector<std::vector<float>> m_OrbitLineVertices;
 
     std::vector<CelestialBody> m_CelestialBodies;
-
-    std::unique_ptr<Texture> m_CelestialTextures[10];
-    std::unique_ptr<Texture> m_MoonTexture;
+    std::vector<std::string> m_TextureNames;
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "layers/SolarSystem.hpp"
+#include "buffers/BufferLayout.hpp"
 #include "Logger.hpp"
 
 SolarSystemLayer::SolarSystemLayer()
@@ -27,61 +28,45 @@ SolarSystemLayer::~SolarSystemLayer()
 void SolarSystemLayer::OnAttach()
 {
     Logger::Debug("{} Attached", m_DebugName);
+    glEnable(GL_DEPTH_TEST);
+
     // Generate sphere data
     GenerateSphere(m_SphereVertices, m_SphereIndices, 0.5f, 36, 18);
 
-    // Setup VAO, VBO, EBO
-    glGenVertexArrays(1, &m_VAO);
-    glGenBuffers(1, &m_VBO);
-    glGenBuffers(1, &m_EBO);
+    BufferLayout layout = {
+        {BufferAttributeType::Vec3, "aPos"},
+        {BufferAttributeType::Vec3, "aNormal"},
+        {BufferAttributeType::Vec2, "aTexCoords"},
+    };
 
-    // after this binding VAO will remember everything underneath
-    glBindVertexArray(m_VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, m_SphereVertices.size() * sizeof(float), m_SphereVertices.data(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_SphereIndices.size() * sizeof(unsigned int), m_SphereIndices.data(), GL_STATIC_DRAW);
-
-    // index -> vertex shader location for this attrib => layout(location = index)
-    // size -> number of components for each attrib (pos = 3, normals = 3, textcoords = 2)
-    // type -> data type
-    // normalized -> whether the data should be normalized
-    // stride -> bytes offset between each vertex (a whole row)
-    // pointer -> offset between each attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
-    // enable the vertex attribute at specified index
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    // Unbind VAO for safety
-    glBindVertexArray(0);
-
-    glEnable(GL_DEPTH_TEST);
+    m_VAO = VertexArray::Create();
+    m_VBO = VertexBuffer::Create(m_SphereVertices);
+    m_EBO = IndexBuffer::Create(m_SphereIndices);
+    m_VBO->SetLayout(layout);
+    m_VAO->AddVertexBuffer(m_VBO);
+    m_VAO->SetIndexBuffer(m_EBO);
 
     // Load textures for celestial bodies
-    m_CelestialTextures[0] = std::make_unique<Texture>("assets/textures/sun.jpg");
-    m_CelestialTextures[1] = std::make_unique<Texture>("assets/textures/mercury.jpg");
-    m_CelestialTextures[2] = std::make_unique<Texture>("assets/textures/venus.jpeg");
-    m_CelestialTextures[3] = std::make_unique<Texture>("assets/textures/earth.jpg");
-    m_CelestialTextures[4] = std::make_unique<Texture>("assets/textures/mars.jpg");
-    m_CelestialTextures[5] = std::make_unique<Texture>("assets/textures/jupiter.jpg");
-    m_CelestialTextures[6] = std::make_unique<Texture>("assets/textures/saturn.jpg");
-    m_CelestialTextures[7] = std::make_unique<Texture>("assets/textures/uranus.jpg");
-    m_CelestialTextures[8] = std::make_unique<Texture>("assets/textures/neptune.jpg");
-    m_CelestialTextures[9] = std::make_unique<Texture>("assets/textures/pluto.jpg");
-    m_MoonTexture = std::make_unique<Texture>("assets/textures/moon.jpg");
+    m_TextureManager = TextureManager::Create();
+    m_TextureManager->AddTexture("sun", "sun.jpg");
+    m_TextureManager->AddTexture("mercury", "mercury.jpg");
+    m_TextureManager->AddTexture("venus", "venus.jpeg");
+    m_TextureManager->AddTexture("earth", "earth.jpg");
+    m_TextureManager->AddTexture("mars", "mars.jpg");
+    m_TextureManager->AddTexture("jupiter", "jupiter.jpg");
+    m_TextureManager->AddTexture("saturn", "saturn.jpg");
+    m_TextureManager->AddTexture("uranus", "uranus.jpg");
+    m_TextureManager->AddTexture("neptune", "neptune.jpg");
+    m_TextureManager->AddTexture("pluto", "pluto.jpg");
+    m_TextureManager->AddTexture("moon", "moon.jpg");
+
+    m_TextureNames = m_TextureManager->GetTextureNames();
 
     // Load shaders
-    m_ShaderManager.AddShader("SolarSystemPhong", "phong_vertex_shader.glsl", "phong_frag_shader.glsl");
-    m_ShaderManager.AddShader("SolarSystemGouraud", "gouraud_vertex_shader.glsl", "gouraud_frag_shader.glsl");
-    m_ShaderManager.AddShader("SolarSystemFlat", "flat_vertex_shader.glsl", "flat_frag_shader.glsl");
-
-    m_CurrentShader = m_ShaderManager.GetShader("SolarSystemPhong");
+    m_ShaderManager = ShaderManager::Create();
+    m_ShaderManager->AddShader("SolarSystemPhong", "phong_vertex_shader.glsl", "phong_frag_shader.glsl");
+    m_ShaderManager->AddShader("SolarSystemGouraud", "gouraud_vertex_shader.glsl", "gouraud_frag_shader.glsl");
+    m_ShaderManager->AddShader("SolarSystemFlat", "flat_vertex_shader.glsl", "flat_frag_shader.glsl");
 
     m_Model = glm::mat4(1.0f);
     m_View = m_Camera.GetViewMatrix();
@@ -93,9 +78,9 @@ void SolarSystemLayer::OnAttach()
 void SolarSystemLayer::OnDetach()
 {
     Logger::Debug("{} Detached", m_DebugName);
-    glDeleteVertexArrays(1, &m_VAO);
-    glDeleteBuffers(1, &m_VBO);
-    glDeleteBuffers(1, &m_EBO);
+    m_VBO->UnBind();
+    m_EBO->UnBind();
+    m_VAO->UnBind();
 }
 
 void SolarSystemLayer::OnUpdate(float deltaTime)
@@ -113,14 +98,15 @@ void SolarSystemLayer::OnRender()
 {
     m_View = m_Camera.GetViewMatrix();
 
-    m_CurrentShader->UseProgram();
-    m_CurrentShader->UploadUniformMat4("model", m_Model);
-    m_CurrentShader->UploadUniformMat4("view", m_View);
-    m_CurrentShader->UploadUniformMat4("projection", m_Projection);
+    auto *shader = m_ShaderManager->GetShader("SolarSystemPhong");
+    shader->UseProgram();
+    shader->UploadUniformMat4("model", m_Model);
+    shader->UploadUniformMat4("view", m_View);
+    shader->UploadUniformMat4("projection", m_Projection);
 
-    m_CurrentShader->UploadUniform3f("lightPos", m_LightPosition);
-    m_CurrentShader->UploadUniform3f("viewPos", m_Camera.GetPosition());
-    m_CurrentShader->UploadUniform3f("lightColor", m_LightColor);
+    shader->UploadUniform3f("lightPos", m_LightPosition);
+    shader->UploadUniform3f("viewPos", m_Camera.GetPosition());
+    shader->UploadUniform3f("lightColor", m_LightColor);
 
     for (unsigned int i = 0; i < m_CelestialBodies.size(); i++)
     {
@@ -136,13 +122,15 @@ void SolarSystemLayer::OnRender()
         m_Model = glm::scale(m_Model, glm::vec3(m_CelestialBodies.at(i).size));
         m_Model = glm::rotate(m_Model, glm::radians(m_CelestialBodies.at(i).axialTilt), glm::vec3(1.0f, 0.0f, 0.0f));
         m_Model = glm::rotate(m_Model, glm::radians(m_Time * m_CelestialBodies.at(i).rotationSpeed), glm::vec3(0.0f, 1.0f, 0.0f));
-        m_CurrentShader->UploadUniformMat4("model", m_Model);
-        m_CurrentShader->UploadUniform1i("isSun", (i == 0) ? 1 : 0);
+        shader->UploadUniformMat4("model", m_Model);
+        shader->UploadUniform1i("isSun", (i == 0) ? 1 : 0);
 
-        m_CelestialTextures[i]->Bind();
-        glBindVertexArray(m_VAO);
-        glDrawElements(GL_TRIANGLES, m_SphereIndices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        Texture *texture = m_TextureManager->GetTexture(m_TextureNames.at(i));
+        texture->Bind();
+
+        m_VAO->Bind();
+        glDrawElements(GL_TRIANGLES, m_EBO->GetCount(), GL_UNSIGNED_INT, 0);
+        m_VAO->UnBind();
 
         // Render moon orbiting Earth
         if (i == 3) // Earth index
@@ -154,14 +142,18 @@ void SolarSystemLayer::OnRender()
             moonModel = glm::translate(moonModel, glm::vec3(x, 0.0f, z));
             moonModel = glm::scale(moonModel, glm::vec3(0.27f));
 
-            m_CurrentShader->UploadUniformMat4("model", moonModel);
-            m_CurrentShader->UploadUniform1i("isSun", (i == 0) ? 1 : 0);
-            m_MoonTexture->Bind();
-            glBindVertexArray(m_VAO);
-            glDrawElements(GL_TRIANGLES, m_SphereIndices.size(), GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
+            shader->UploadUniformMat4("model", moonModel);
+            shader->UploadUniform1i("isSun", (i == 0) ? 1 : 0);
+
+            Texture *texture = m_TextureManager->GetTexture("moon");
+            texture->Bind();
+
+            m_VAO->Bind();
+            glDrawElements(GL_TRIANGLES, m_EBO->GetCount(), GL_UNSIGNED_INT, 0);
+            m_VAO->UnBind();
         }
     }
+    shader->UnBind();
 }
 
 void SolarSystemLayer::GenerateSphere(std::vector<float> &vertices, std::vector<unsigned int> &indices, float radius, int sectorCount, int stackCount)

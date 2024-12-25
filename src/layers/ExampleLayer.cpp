@@ -41,19 +41,17 @@ void ExampleLayer::OnAttach()
         {BufferAttributeType::Vec2, "aTexCoords"},
     };
 
-    m_VBO = VertexBuffer::Create(vertices);
-    m_VBO->SetLayout(layout);
-
-    m_EBO = IndexBuffer::Create(indices);
-
     m_VAO = VertexArray::Create();
+    m_VBO = VertexBuffer::Create(vertices);
+    m_EBO = IndexBuffer::Create(indices);
+    m_VBO->SetLayout(layout);
     m_VAO->AddVertexBuffer(m_VBO);
     m_VAO->SetIndexBuffer(m_EBO);
 
-    m_ShaderManager = std::make_unique<ShaderManager>();
+    m_ShaderManager = ShaderManager::Create();
     m_ShaderManager->AddShader("pyramid", "example_vertex_shader.glsl", "example_frag_shader.glsl");
 
-    m_TextureManager = std::make_unique<TextureManager>();
+    m_TextureManager = TextureManager::Create();
     m_TextureManager->AddTexture("pyramid", "earth.jpg");
 
     m_Model = glm::mat4(1.0f);
@@ -92,4 +90,7 @@ void ExampleLayer::OnRender()
 
     m_VAO->Bind();
     glDrawElements(GL_TRIANGLES, m_EBO->GetCount(), GL_UNSIGNED_INT, 0);
+    m_VAO->UnBind();
+
+    pyramidShader->UnBind();
 }

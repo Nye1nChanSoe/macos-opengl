@@ -33,7 +33,8 @@ void VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer> &vertexBuf
         throw std::runtime_error("Vertex buffer needs a layout");
     }
 
-    glBindVertexArray(m_VertexArrayID);
+    // bind vertex array first (order matters)
+    Bind();
     vertexBuffer->Bind();
 
     auto &layout = vertexBuffer->GetLayout();
@@ -58,7 +59,8 @@ void VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer> &vertexBuf
 
 void VertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer> &indexbuffer)
 {
-    glBindVertexArray(m_VertexArrayID);
+    // bind vertex array first (order matters)
+    Bind();
     indexbuffer->Bind();
 
     m_IndexBufferRef = indexbuffer;

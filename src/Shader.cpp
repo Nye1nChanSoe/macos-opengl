@@ -255,8 +255,8 @@ void ShaderManager::AddShader(const std::string &shaderName, const std::string &
     std::string fullVertexShaderPath = m_ShaderDefaultPath + vertexShaderPath;
     std::string fullFragmentShaderPath = m_ShaderDefaultPath + fragmentShaderPath;
 
-    Logger::Info("Shader added from path: {}", fullVertexShaderPath);
-    Logger::Info("Shader added from path: {}", fullFragmentShaderPath);
+    Logger::Info("Shader: '{}' added from path {}", shaderName, fullVertexShaderPath);
+    Logger::Info("Shader: '{}' added from path {}", shaderName, fullFragmentShaderPath);
 
     m_Shaders[shaderName] = new Shader(fullVertexShaderPath.c_str(), fullFragmentShaderPath.c_str());
     m_ShaderNames.push_back(shaderName);
@@ -301,4 +301,9 @@ Shader *ShaderManager::GetShader(const std::string &shaderName)
         throw std::runtime_error("Shader with name " + shaderName + " not found.");
     }
     return it->second;
+}
+
+std::unique_ptr<ShaderManager> ShaderManager::Create()
+{
+    return std::make_unique<ShaderManager>();
 }

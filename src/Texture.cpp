@@ -2,6 +2,7 @@
 #include "Texture.hpp"
 #include "stb_image.h"
 #include <iostream>
+#include "Logger.hpp"
 
 Texture::Texture(const std::string &path)
     : m_TextureID(0), m_Width(0), m_Height(0), m_NrChannels(0)
@@ -76,11 +77,13 @@ void TextureManager::AddTexture(const std::string &name, const std::string &path
     {
         std::string fullPath = m_TextureDefaultPath + path;
         m_Textures[name] = new Texture(fullPath);
+        Logger::Info("Texture: '{}' added from path {}", name, fullPath);
     }
     else
     {
         std::cerr << "Texture with name \"" << name << "\" already exists.\n";
     }
+    m_TextureNames.push_back(name);
 }
 
 Texture *TextureManager::GetTexture(const std::string &name) const
@@ -98,15 +101,23 @@ Texture *TextureManager::GetTexture(const std::string &name) const
 void TextureManager::RemoveTexture(const std::string &name)
 {
     auto it = m_Textures.find(name);
-    if (it != m_Textures.end())
+    if (it == m_Textures.end())
     {
-        delete it->second;
-        m_Textures.erase(it);
+        throw std::runtime_error("Texture with name " + name + " not found.");
     }
-    else
+
+    // Delete the shader and remove from the map
+    delete it->second;
+    m_Textures.erase(it);
+
+    // Remove the shader name from the list
+    auto nameIt = std::find(m_TextureNames.begin(), m_TextureNames.end(), name);
+    if (nameIt != m_TextureNames.end())
     {
-        std::cerr << "Texture with name \"" << name << "\" not found.\n";
+        m_TextureNames.erase(nameIt);
     }
+
+    Logger::Info("Texture removed: {}", name);
 }
 
 void TextureManager::ClearTextures()
@@ -116,4 +127,10 @@ void TextureManager::ClearTextures()
         delete pair.second;
     }
     m_Textures.clear();
+    m_TextureNames.clear();
+}
+
+std::unique_ptr<TextureManager> TextureManager::Create()
+{
+    return std::make_unique<TextureManager>();
 }

@@ -81,7 +81,9 @@ public:
 
     Shader *GetShader(const std::string &shaderName);
 
-    std::vector<std::string> inline GetShaderNames() const { return m_ShaderNames; }
+    const inline std::vector<std::string> &GetShaderNames() const { return m_ShaderNames; }
+
+    static std::unique_ptr<ShaderManager> Create();
 };
 
 #endif

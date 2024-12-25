@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <OpenGL/gl3.h>
 #include <GLFW/glfw3.h>
+#include <vector>
 
 class Texture
 {
@@ -36,6 +37,7 @@ class TextureManager
 private:
     std::unordered_map<std::string, Texture *> m_Textures;
     std::string m_TextureDefaultPath;
+    std::vector<std::string> m_TextureNames;
 
 public:
     TextureManager();
@@ -46,6 +48,10 @@ public:
     void RemoveTexture(const std::string &name);
 
     void inline SetTextureDefaultPath(const std::string &defaultPath) { m_TextureDefaultPath = defaultPath; }
+
+    const inline std::vector<std::string> &GetTextureNames() const { return m_TextureNames; }
+
+    static std::unique_ptr<TextureManager> Create();
 
 private:
     void ClearTextures();

@@ -72,10 +72,10 @@ TextureManager::~TextureManager()
 
 void TextureManager::AddTexture(const std::string &name, const std::string &path)
 {
-    if (m_TextureCache.find(name) == m_TextureCache.end())
+    if (m_Textures.find(name) == m_Textures.end())
     {
         std::string fullPath = m_TextureDefaultPath + path;
-        m_TextureCache[name] = new Texture(fullPath);
+        m_Textures[name] = new Texture(fullPath);
     }
     else
     {
@@ -85,8 +85,8 @@ void TextureManager::AddTexture(const std::string &name, const std::string &path
 
 Texture *TextureManager::GetTexture(const std::string &name) const
 {
-    auto it = m_TextureCache.find(name);
-    if (it != m_TextureCache.end())
+    auto it = m_Textures.find(name);
+    if (it != m_Textures.end())
     {
         return it->second;
     }
@@ -97,11 +97,11 @@ Texture *TextureManager::GetTexture(const std::string &name) const
 
 void TextureManager::RemoveTexture(const std::string &name)
 {
-    auto it = m_TextureCache.find(name);
-    if (it != m_TextureCache.end())
+    auto it = m_Textures.find(name);
+    if (it != m_Textures.end())
     {
         delete it->second;
-        m_TextureCache.erase(it);
+        m_Textures.erase(it);
     }
     else
     {
@@ -111,9 +111,9 @@ void TextureManager::RemoveTexture(const std::string &name)
 
 void TextureManager::ClearTextures()
 {
-    for (auto &pair : m_TextureCache)
+    for (auto &pair : m_Textures)
     {
         delete pair.second;
     }
-    m_TextureCache.clear();
+    m_Textures.clear();
 }

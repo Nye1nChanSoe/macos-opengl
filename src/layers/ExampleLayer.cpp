@@ -16,11 +16,12 @@ void ExampleLayer::OnAttach()
     glEnable(GL_DEPTH_TEST);
 
     std::vector<float> vertices = {
-        -0.5f, 0.0f, -0.5f, // 0: Bottom-left
-        0.5f, 0.0f, -0.5f,  // 1: Bottom-right
-        0.5f, 0.0f, 0.5f,   // 2: Top-right
-        -0.5f, 0.0f, 0.5f,  // 3: Top-left
-        0.0f, 1.0f, 0.0f    // 4: Apex
+        // Positions         // Texture Coords
+        -0.5f, 0.0f, -0.5f, 0.0f, 0.0f, // Bottom-left
+        0.5f, 0.0f, -0.5f, 1.0f, 0.0f,  // Bottom-right
+        0.5f, 0.0f, 0.5f, 1.0f, 1.0f,   // Top-right
+        -0.5f, 0.0f, 0.5f, 0.0f, 1.0f,  // Top-left
+        0.0f, 1.0f, 0.0f, 0.5f, 0.5f    // Apex
     };
 
     std::vector<unsigned int> indices = {
@@ -37,7 +38,7 @@ void ExampleLayer::OnAttach()
     BufferLayout layout = {
         {BufferAttributeType::Vec3, "aPos"},
         // {BufferAttributeType::Vec3, "aNormal"},
-        // {BufferAttributeType::Vec2, "aTexCoords"},
+        {BufferAttributeType::Vec2, "aTexCoords"},
     };
 
     m_VBO = VertexBuffer::Create(vertices);
@@ -51,6 +52,9 @@ void ExampleLayer::OnAttach()
 
     m_ShaderManager = std::make_unique<ShaderManager>();
     m_ShaderManager->AddShader("pyramid", "example_vertex_shader.glsl", "example_frag_shader.glsl");
+
+    m_TextureManager = std::make_unique<TextureManager>();
+    m_TextureManager->AddTexture("pyramid", "earth.jpg");
 
     m_Model = glm::mat4(1.0f);
     m_View = glm::lookAt(glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -71,10 +75,20 @@ void ExampleLayer::OnUpdate(float deltaTime)
 void ExampleLayer::OnRender()
 {
     auto *pyramidShader = m_ShaderManager->GetShader("pyramid");
+    auto *pyramidTexture = m_TextureManager->GetTexture("pyramid");
     pyramidShader->UseProgram();
+
+    // Add rotation to the model matrix
+    static float rotationAngle = 0.0f;
+    rotationAngle += 0.003f;
+    m_Model = glm::rotate(glm::mat4(1.0f), rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate around the Y-axis
+
     pyramidShader->UploadUniformMat4("uModel", m_Model);
     pyramidShader->UploadUniformMat4("uView", m_View);
     pyramidShader->UploadUniformMat4("uProjection", m_Projection);
+
+    pyramidTexture->Bind(GL_TEXTURE0);
+    pyramidShader->UploadUniform1i("texture1", 0); // Explicitly set sampler to use unit 0
 
     m_VAO->Bind();
     glDrawElements(GL_TRIANGLES, m_EBO->GetCount(), GL_UNSIGNED_INT, 0);

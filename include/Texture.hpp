@@ -34,7 +34,7 @@ private:
 class TextureManager
 {
 private:
-    std::unordered_map<std::string, Texture *> m_TextureCache;
+    std::unordered_map<std::string, Texture *> m_Textures;
     std::string m_TextureDefaultPath;
 
 public:
@@ -44,9 +44,11 @@ public:
     void AddTexture(const std::string &name, const std::string &path);
     Texture *GetTexture(const std::string &name) const;
     void RemoveTexture(const std::string &name);
-    void ClearTextures();
 
     void inline SetTextureDefaultPath(const std::string &defaultPath) { m_TextureDefaultPath = defaultPath; }
+
+private:
+    void ClearTextures();
 };
 
 #endif

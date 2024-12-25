@@ -241,6 +241,8 @@ ShaderManager::~ShaderManager()
     {
         delete shader.second;
     }
+    m_Shaders.clear();
+    m_ShaderNames.clear();
 }
 
 void ShaderManager::AddShader(const std::string &shaderName, const std::string &vertexShaderPath, const std::string &fragmentShaderPath)

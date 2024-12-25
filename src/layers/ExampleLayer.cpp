@@ -49,13 +49,16 @@ void ExampleLayer::OnAttach()
     m_VAO->AddVertexBuffer(m_VBO);
     m_VAO->SetIndexBuffer(m_EBO);
 
-    m_Shader = std::make_unique<Shader>("assets/shaders/example_vertex_shader.glsl", "assets/shaders/example_frag_shader.glsl");
-    m_Shader->Bind();
+    m_ShaderManager = std::make_unique<ShaderManager>();
+    m_ShaderManager->AddShader("pyramid", "example_vertex_shader.glsl", "example_frag_shader.glsl");
+
+    m_Model = glm::mat4(1.0f);
+    m_View = glm::lookAt(glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_Projection = glm::perspective(glm::radians(45.0f), (float)1000 / 740, 0.1f, 100.0f);
 }
 
 void ExampleLayer::OnDetach()
 {
-    m_Shader->UnBind();
     m_VAO->UnBind();
     m_VBO->UnBind();
     m_EBO->UnBind();
@@ -67,14 +70,11 @@ void ExampleLayer::OnUpdate(float deltaTime)
 
 void ExampleLayer::OnRender()
 {
-    m_Shader->UseProgram();
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 2.0f, 5.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1000 / 740, 0.1f, 100.0f);
-
-    m_Shader->UploadUniformMat4("uModel", model);
-    m_Shader->UploadUniformMat4("uView", view);
-    m_Shader->UploadUniformMat4("uProjection", projection);
+    auto *pyramidShader = m_ShaderManager->GetShader("pyramid");
+    pyramidShader->UseProgram();
+    pyramidShader->UploadUniformMat4("uModel", m_Model);
+    pyramidShader->UploadUniformMat4("uView", m_View);
+    pyramidShader->UploadUniformMat4("uProjection", m_Projection);
 
     m_VAO->Bind();
     glDrawElements(GL_TRIANGLES, m_EBO->GetCount(), GL_UNSIGNED_INT, 0);

@@ -63,7 +63,6 @@ class ShaderManager
 {
 private:
     std::unordered_map<std::string, Shader *> m_Shaders;
-    std::unordered_map<std::string, GLuint> m_ShaderCache;
     std::string m_ShaderDefaultPath;
     std::vector<std::string> m_ShaderNames;
 
@@ -73,6 +72,9 @@ public:
 
     void AddShader(const std::string &shaderName, const std::string &vertexShaderPath, const std::string &fragmentShaderPath);
     void UseShader(const std::string &shaderName);
+
+    // HINT: dont call this method to remove OnDetach method
+    // ShaderManager destructor method will handle deletion automatically
     void RemoveShader(const std::string &shaderName);
 
     void inline SetShaderDefaultPath(const std::string &defaultPath) { m_ShaderDefaultPath = defaultPath; }

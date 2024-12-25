@@ -22,7 +22,11 @@ private:
     std::shared_ptr<VertexBuffer> m_VBO;
     std::shared_ptr<IndexBuffer> m_EBO;
     std::shared_ptr<VertexArray> m_VAO;
-    std::unique_ptr<Shader> m_Shader;
+    std::unique_ptr<ShaderManager> m_ShaderManager;
+
+    glm::mat4 m_Model;
+    glm::mat4 m_View;
+    glm::mat4 m_Projection;
 };
 
 #endif

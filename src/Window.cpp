@@ -67,9 +67,9 @@ void Window::Initialize(const InitializeWindowProps &props)
     glfwMakeContextCurrent(m_Window);
     SetVSync(m_WindowProperties.m_Vsync);
 
-    Logger::Info("Vendor: {}", std::string(reinterpret_cast<const char *>(glGetString(GL_VENDOR))));
-    Logger::Info("Renderer: {}", std::string(reinterpret_cast<const char *>(glGetString(GL_RENDERER))));
-    Logger::Info("Version: {}", std::string(reinterpret_cast<const char *>(glGetString(GL_VERSION))));
+    Logger::Info("OpenGL Vendor: {}", std::string(reinterpret_cast<const char *>(glGetString(GL_VENDOR))));
+    Logger::Info("OpenGL Renderer: {}", std::string(reinterpret_cast<const char *>(glGetString(GL_RENDERER))));
+    Logger::Info("OpenGL Version: {}", std::string(reinterpret_cast<const char *>(glGetString(GL_VERSION))));
 
     // Set window properties on GLFW context to retrieve them in callbacks
     glfwSetWindowUserPointer(m_Window, &m_WindowProperties);

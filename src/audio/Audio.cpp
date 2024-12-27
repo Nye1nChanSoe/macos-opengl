@@ -40,6 +40,10 @@ bool Audio::InitOpenAL()
         return false;
     }
 
+    Logger::Info("OpenAL Vendor: {}", std::string(reinterpret_cast<const char *>(alGetString(AL_VENDOR))));
+    Logger::Info("OpenAL Renderer: {}", std::string(reinterpret_cast<const char *>(alGetString(AL_RENDERER))));
+    Logger::Info("OpenAL Version: {}", std::string(reinterpret_cast<const char *>(alGetString(AL_VERSION))));
+
     alGenBuffers(1, &m_Buffer);
     if (alGetError() != AL_NO_ERROR)
     {

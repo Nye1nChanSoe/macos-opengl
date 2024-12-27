@@ -1,6 +1,6 @@
 # OpenGL 4.1 Project with Premake5
 
-This project purposefully uses **OpenGL 4.1**, which is the latest supported OpenGL version on **macOS**.
+This project purposefully uses **OpenGL 4.1** and **OpenAL 1.1**, which is the latest supported OpenGL and OpenAL version on **macOS**.
 
 It ensures compatibility and performance on **Apple silicon** hardware.
 <br/>

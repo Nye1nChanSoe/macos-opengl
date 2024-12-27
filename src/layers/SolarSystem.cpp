@@ -31,8 +31,21 @@ void SolarSystemLayer::OnAttach()
     Logger::Debug("{} Attached", m_DebugName);
     glEnable(GL_DEPTH_TEST);
 
-    // Generate sphere data
+    // Generate sphere data and orbit line
     GenerateSphere(m_SphereVertices, m_SphereIndices, 0.5f, 36, 18);
+    for (const auto &body : m_CelestialBodies)
+    {
+        // 100 segments for a smooth circle
+        GenerateOrbitLine(m_OrbitLineVertices, body.orbitalRadius, 100);
+    }
+
+    // orbit line layout, vertex buffer, and vertex array
+    BufferLayout orbitLayout = {{BufferAttributeType::Vec3, "aPos"}};
+
+    m_OrbitVAO = VertexArray::Create();
+    m_OrbitVBO = VertexBuffer::Create(m_OrbitLineVertices);
+    m_OrbitVBO->SetLayout(orbitLayout);
+    m_OrbitVAO->AddVertexBuffer(m_OrbitVBO);
 
     BufferLayout layout = {
         {BufferAttributeType::Vec3, "aPos"},
@@ -68,6 +81,7 @@ void SolarSystemLayer::OnAttach()
     m_ShaderManager->AddShader("SolarSystemPhong", "phong_vertex_shader.glsl", "phong_frag_shader.glsl");
     m_ShaderManager->AddShader("SolarSystemGouraud", "gouraud_vertex_shader.glsl", "gouraud_frag_shader.glsl");
     m_ShaderManager->AddShader("SolarSystemFlat", "flat_vertex_shader.glsl", "flat_frag_shader.glsl");
+    m_ShaderManager->AddShader("OrbitLine", "orbitline_vertex_shader.glsl", "orbitline_frag_shader.glsl");
 
     m_Model = glm::mat4(1.0f);
     m_View = m_Camera.GetViewMatrix();
@@ -93,6 +107,10 @@ void SolarSystemLayer::OnUpdate(float deltaTime)
 
 void SolarSystemLayer::OnEvent(Event &event)
 {
+    EventDispatcher dispatcher(event);
+    dispatcher.Dispatch<MouseMovedEvent>([this](MouseMovedEvent &e)
+                                         { return OnMouseMove(e); });
+
     m_Camera.ProcessInput();
 }
 
@@ -100,7 +118,29 @@ void SolarSystemLayer::OnRender()
 {
     m_View = m_Camera.GetViewMatrix();
 
+    auto *orbitShader = m_ShaderManager->GetShader("OrbitLine");
+
+    orbitShader->UseProgram();
+    orbitShader->UploadUniformMat4("view", m_View);
+    orbitShader->UploadUniformMat4("projection", m_Projection);
+    orbitShader->UploadUniform3f("orbitColor", glm::vec3(0.3f, 0.3f, 0.3f));
+    std::size_t offset = 0; // orbit line vertices offsets
+
+    for (const auto &body : m_CelestialBodies)
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        orbitShader->UploadUniformMat4("model", model);
+
+        m_OrbitVAO->Bind();
+        glDrawArrays(GL_LINE_STRIP, offset, 101);
+        offset += 101;
+        m_OrbitVAO->UnBind();
+    }
+
+    orbitShader->UnBind();
+
     auto *shader = m_ShaderManager->GetShader("SolarSystemPhong");
+
     shader->UseProgram();
     shader->UploadUniformMat4("model", m_Model);
     shader->UploadUniformMat4("view", m_View);
@@ -155,7 +195,14 @@ void SolarSystemLayer::OnRender()
             m_VAO->UnBind();
         }
     }
+
     shader->UnBind();
+}
+
+bool SolarSystemLayer::OnMouseMove(MouseMovedEvent &e)
+{
+    Logger::Debug("Mouse Position: ({}, {})", e.GetX(), e.GetY());
+    return true;
 }
 
 void SolarSystemLayer::GenerateSphere(std::vector<float> &vertices, std::vector<unsigned int> &indices, float radius, int sectorCount, int stackCount)

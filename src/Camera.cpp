@@ -3,13 +3,13 @@
 #include "Application.hpp"
 
 Camera::Camera()
-    : m_Position(glm::vec3(0.0f, 0.0f, 70.0f)),
+    : m_Position(glm::vec3(0.0f, 20.0f, 70.0f)),
       m_Front(glm::normalize(glm::vec3(0.0f, 0.0f, 0.0f))),
-      m_Up(0.0f, 1.0f, 0.0f),
+      m_Up(0.0f, 0.5f, 0.0f),
       m_Yaw(-50.0f),
-      m_Pitch(0.0f),
+      m_Pitch(-20.0f),
       m_Speed(0.2f),
-      m_RotationSpeed(0.6f),
+      m_RotationSpeed(0.3f),
       m_Sensitivity(0.05f)
 {
 }

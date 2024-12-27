@@ -14,6 +14,8 @@
 #include "buffers/IndexBuffer.hpp"
 #include "buffers/VertexArray.hpp"
 
+#include "events/MouseEvent.hpp"
+
 struct CelestialBody
 {
     glm::vec3 position;
@@ -48,6 +50,9 @@ private:
         float radius, int sectorCount, int stackCount);
     void GenerateOrbitLine(std::vector<float> &vertices, float radius, int segmentCount);
 
+    // Eventhandlers
+    bool OnMouseMove(MouseMovedEvent &e);
+
 private:
     Camera m_Camera;
     std::unique_ptr<ShaderManager> m_ShaderManager;
@@ -65,12 +70,21 @@ private:
     std::shared_ptr<VertexBuffer> m_VBO;
     std::shared_ptr<IndexBuffer> m_EBO;
     std::shared_ptr<VertexArray> m_VAO;
+    std::shared_ptr<VertexArray> m_OrbitVAO;
+    std::shared_ptr<VertexBuffer> m_OrbitVBO;
 
     std::vector<float> m_SphereVertices;
+    std::vector<float> m_OrbitLineVertices;
     std::vector<unsigned int> m_SphereIndices;
 
     std::vector<CelestialBody> m_CelestialBodies;
     std::vector<std::string> m_TextureNames;
+
+    // Camera Mouse Movements
+    // TODO: implement mouse movements
+    float m_LastMouseX = 0.0f;
+    float m_LastMouseY = 0.0f;
+    bool m_FirstMouseMove = true;
 };
 
 #endif

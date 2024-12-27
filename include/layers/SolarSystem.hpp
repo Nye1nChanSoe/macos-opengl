@@ -72,6 +72,8 @@ private:
     std::shared_ptr<VertexArray> m_VAO;
     std::shared_ptr<VertexArray> m_OrbitVAO;
     std::shared_ptr<VertexBuffer> m_OrbitVBO;
+    std::shared_ptr<VertexArray> m_SkyboxVAO;
+    std::shared_ptr<VertexBuffer> m_SkyboxVBO;
 
     std::vector<float> m_SphereVertices;
     std::vector<float> m_OrbitLineVertices;
@@ -79,6 +81,9 @@ private:
 
     std::vector<CelestialBody> m_CelestialBodies;
     std::vector<std::string> m_TextureNames;
+
+    // Skybox Cubemap
+    std::unique_ptr<Texture> m_CubemapTexture;
 
     // Camera Mouse Movements
     // TODO: implement mouse movements

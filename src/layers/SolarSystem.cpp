@@ -31,6 +31,56 @@ void SolarSystemLayer::OnAttach()
     Logger::Debug("{} Attached", m_DebugName);
     glEnable(GL_DEPTH_TEST);
 
+    // Skybox cube vertices (6 faces)
+    std::vector<float> skyboxVertices = {
+        -1.0f, 1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, 1.0f, -1.0f,
+        -1.0f, 1.0f, -1.0f,
+
+        -1.0f, -1.0f, 1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, 1.0f, -1.0f,
+        -1.0f, 1.0f, -1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f,
+
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, -1.0f, 1.0f,
+        -1.0f, -1.0f, 1.0f,
+
+        -1.0f, 1.0f, -1.0f,
+        1.0f, 1.0f, -1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f, 1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f, 1.0f,
+        1.0f, -1.0f, 1.0f};
+
+    // Create and bind the skybox VAO/VBO
+    m_SkyboxVAO = VertexArray::Create();
+    m_SkyboxVBO = VertexBuffer::Create(skyboxVertices);
+    m_SkyboxVBO->SetLayout({{BufferAttributeType::Vec3, "aPos"}});
+    m_SkyboxVAO->AddVertexBuffer(m_SkyboxVBO);
+
     // Generate sphere data and orbit line
     GenerateSphere(m_SphereVertices, m_SphereIndices, 0.5f, 36, 18);
     for (const auto &body : m_CelestialBodies)
@@ -76,12 +126,24 @@ void SolarSystemLayer::OnAttach()
 
     m_TextureNames = m_TextureManager->GetTextureNames();
 
+    // Skybox cubemap
+    std::vector<std::string> cubemapFaces = {
+        "assets/textures/nasa_starmap_cubemap/px.png", // Positive X
+        "assets/textures/nasa_starmap_cubemap/nx.png", // Negative X
+        "assets/textures/nasa_starmap_cubemap/py.png", // Positive Y
+        "assets/textures/nasa_starmap_cubemap/ny.png", // Negative Y
+        "assets/textures/nasa_starmap_cubemap/pz.png", // Positive Z
+        "assets/textures/nasa_starmap_cubemap/nz.png"  // Negative Z
+    };
+    m_CubemapTexture = std::make_unique<Texture>(cubemapFaces);
+
     // Load shaders
     m_ShaderManager = ShaderManager::Create();
     m_ShaderManager->AddShader("SolarSystemPhong", "phong_vertex_shader.glsl", "phong_frag_shader.glsl");
     m_ShaderManager->AddShader("SolarSystemGouraud", "gouraud_vertex_shader.glsl", "gouraud_frag_shader.glsl");
     m_ShaderManager->AddShader("SolarSystemFlat", "flat_vertex_shader.glsl", "flat_frag_shader.glsl");
     m_ShaderManager->AddShader("OrbitLine", "orbitline_vertex_shader.glsl", "orbitline_frag_shader.glsl");
+    m_ShaderManager->AddShader("Skybox", "skybox_vertex_shader.glsl", "skybox_frag_shader.glsl");
 
     m_Model = glm::mat4(1.0f);
     m_View = m_Camera.GetViewMatrix();
@@ -107,16 +169,40 @@ void SolarSystemLayer::OnUpdate(float deltaTime)
 
 void SolarSystemLayer::OnEvent(Event &event)
 {
-    EventDispatcher dispatcher(event);
-    dispatcher.Dispatch<MouseMovedEvent>([this](MouseMovedEvent &e)
-                                         { return OnMouseMove(e); });
+    // EventDispatcher dispatcher(event);
+    // dispatcher.Dispatch<MouseMovedEvent>([this](MouseMovedEvent &e)
+    //                                      { return OnMouseMove(e); });
 
     m_Camera.ProcessInput();
 }
 
 void SolarSystemLayer::OnRender()
 {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_View = m_Camera.GetViewMatrix();
+    // 3. Render the skybox
+    glDepthFunc(GL_LEQUAL); // Render skybox behind everything
+    glDepthMask(GL_FALSE);  // Disable depth writing
+
+    auto *skyboxShader = m_ShaderManager->GetShader("Skybox");
+    skyboxShader->UseProgram();
+
+    // Strip translation from the view matrix for the skybox
+    glm::mat4 skyboxView = glm::mat4(glm::mat3(m_View));
+    skyboxShader->UploadUniformMat4("view", skyboxView);
+    skyboxShader->UploadUniformMat4("projection", m_Projection);
+
+    // Bind the cubemap texture and draw the skybox
+    m_CubemapTexture->Bind(GL_TEXTURE0);
+    m_SkyboxVAO->Bind();
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    m_SkyboxVAO->UnBind();
+
+    skyboxShader->UnBind();
+
+    // Re-enable depth writing and reset depth function
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
 
     auto *orbitShader = m_ShaderManager->GetShader("OrbitLine");
 
@@ -195,7 +281,6 @@ void SolarSystemLayer::OnRender()
             m_VAO->UnBind();
         }
     }
-
     shader->UnBind();
 }
 

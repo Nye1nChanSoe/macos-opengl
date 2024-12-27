@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "audio/OpenAL.hpp"
 
 ImGuiOverlay::ImGuiOverlay()
     : Layer("ImGuiOverlay"), m_Time(0.0f)
@@ -63,7 +64,7 @@ void ImGuiOverlay::OnRender()
     ShowDockingSpace();
     ShowLayerManagementUI();
     ShowPerformanceMetrics();
-    ShowGraphicsInfo();
+    ShowGraphicsAndAudioInfo();
 
     ImGui::EndFrame();
     ImGui::Render();
@@ -96,16 +97,18 @@ void ImGuiOverlay::ShowPerformanceMetrics()
     ImGui::End();
 }
 
-void ImGuiOverlay::ShowGraphicsInfo()
+void ImGuiOverlay::ShowGraphicsAndAudioInfo()
 {
     // Retrieve grphics information
     const GLubyte *renderer = glGetString(GL_RENDERER);
     const GLubyte *version = glGetString(GL_VERSION);
     const GLubyte *vendor = glGetString(GL_VENDOR);
+    const ALbyte *alVersion = alGetString(AL_VERSION);
 
-    ImGui::Begin("Graphics Info");
+    ImGui::Begin("Graphics and Audio Info");
     ImGui::Text("Renderer: %s", renderer);
     ImGui::Text("OpenGL Version: %s", version);
+    ImGui::Text("OpenAL Version: %s", alVersion);
     ImGui::Text("Vendor: %s", vendor);
     ImGui::End();
 }

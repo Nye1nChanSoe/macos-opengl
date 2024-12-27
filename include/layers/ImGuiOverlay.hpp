@@ -21,7 +21,7 @@ public:
 private:
     void ShowLayerManagementUI();
     void ShowPerformanceMetrics();
-    void ShowGraphicsInfo();
+    void ShowGraphicsAndAudioInfo();
     void ShowDockingSpace();
 };
 

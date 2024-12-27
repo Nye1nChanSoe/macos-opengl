@@ -1,11 +1,7 @@
 #ifndef AUDIO_HPP
 #define AUDIO_HPP
 
-// to suppress OpenAL deprecated warnings in favor of MacOS AVAudioEngine
-#define OPENAL_DEPRECATED
-
-#include <OpenAL/al.h>
-#include <OpenAL/alc.h>
+#include "audio/OpenAL.hpp"
 #include <string>
 #include <memory>
 

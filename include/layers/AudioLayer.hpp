@@ -16,8 +16,10 @@ public:
     void OnUpdate(float deltaTime) override;
     void OnRender() override;
 
+    const std::shared_ptr<Audio> GetAudio() const { return m_Audio; }
+
 private:
-    std::unique_ptr<Audio> m_Audio;
+    std::shared_ptr<Audio> m_Audio;
 };
 
 #endif

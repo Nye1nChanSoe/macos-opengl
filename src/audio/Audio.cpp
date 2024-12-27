@@ -120,6 +120,11 @@ void Audio::Stop()
     alSourceStop(m_Source);
 }
 
+void Audio::Pause()
+{
+    alSourcePause(m_Source);
+}
+
 void Audio::Rewind()
 {
     alSourceRewind(m_Source);
@@ -137,7 +142,7 @@ bool Audio::IsPlaying() const
     return state == AL_PLAYING;
 }
 
-std::unique_ptr<Audio> Audio::Create()
+std::shared_ptr<Audio> Audio::Create()
 {
-    return std::make_unique<Audio>();
+    return std::make_shared<Audio>();
 }

@@ -7,6 +7,8 @@ AudioLayer::AudioLayer()
 
 AudioLayer::~AudioLayer()
 {
+    if (m_Audio)
+        m_Audio->Stop();
 }
 
 void AudioLayer::OnAttach()

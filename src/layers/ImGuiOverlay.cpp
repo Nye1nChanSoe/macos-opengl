@@ -5,6 +5,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "audio/OpenAL.hpp"
+#include "layers/AudioLayer.hpp"
 
 ImGuiOverlay::ImGuiOverlay()
     : Layer("ImGuiOverlay"), m_Time(0.0f)
@@ -82,9 +83,23 @@ void ImGuiOverlay::ShowLayerManagementUI()
     {
         bool isVisible = layer->IsVisible();
         if (ImGui::Checkbox(layer->GetName().c_str(), &isVisible))
+        {
             layer->SetVisibility(isVisible);
-    }
 
+            // Check if the layer is an AudioLayer
+            if (auto *audioLayer = dynamic_cast<AudioLayer *>(layer))
+            {
+                auto audio = audioLayer->GetAudio();
+                if (audio)
+                {
+                    if (isVisible)
+                        audio->Play();
+                    else
+                        audio->Pause();
+                }
+            }
+        }
+    }
     ImGui::End();
 }
 

@@ -17,6 +17,7 @@ public:
 
     bool Play();
     void Stop();
+    void Pause();
     void Rewind();
     void Loop(bool enable = true);
 
@@ -25,7 +26,7 @@ public:
     const inline ALuint &GetBuffer() const { return m_Buffer; }
     const inline ALuint &GetSource() const { return m_Source; }
 
-    static std::unique_ptr<Audio> Create();
+    static std::shared_ptr<Audio> Create();
 
 private:
     bool InitOpenAL();

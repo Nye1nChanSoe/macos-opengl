@@ -16,9 +16,11 @@ private:
     int m_Width;
     int m_Height;
     int m_NrChannels;
+    GLenum m_TextureType;
 
 public:
     Texture(const std::string &path);
+    Texture(const std::vector<std::string> &cubeFaces);
     ~Texture();
 
     void Bind(GLenum textureUnit = GL_TEXTURE0) const;
@@ -29,6 +31,7 @@ public:
 
 private:
     void LoadFromFile(const std::string &path);
+    void LoadCubemap(const std::vector<std::string> &cubeFaces);
     void SetDefaultParameters();
 };
 

@@ -6,6 +6,11 @@
 #include <vector>
 #include <cmath>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+
 // Function to get the file size (in bytes)
 long getFileSize(const std::string &filePath)
 {
@@ -119,9 +124,113 @@ void getMP3FileInfo(const std::string &filePath)
     mpg123_exit();
 }
 
+// Function to initialize OpenAL
+ALCdevice *initializeOpenAL(ALCcontext *&context)
+{
+    // Open default device
+    ALCdevice *device = alcOpenDevice(nullptr);
+    if (!device)
+    {
+        std::cerr << "Error: Could not open OpenAL device." << std::endl;
+        return nullptr;
+    }
+
+    // Create a context
+    context = alcCreateContext(device, nullptr);
+    if (!context || !alcMakeContextCurrent(context))
+    {
+        std::cerr << "Error: Could not create or set OpenAL context." << std::endl;
+        alcCloseDevice(device);
+        return nullptr;
+    }
+
+    return device;
+}
+
+// Function to clean up OpenAL resources
+void cleanupOpenAL(ALCdevice *device, ALCcontext *context)
+{
+    alcMakeContextCurrent(nullptr);
+    if (context)
+        alcDestroyContext(context);
+    if (device)
+        alcCloseDevice(device);
+}
+
+// Function to play PCM data
+void playPCMData(const std::vector<unsigned char> &pcmData, int sampleRate, int channels, int bitDepth)
+{
+    // Determine OpenAL format
+    ALenum format;
+    if (channels == 1)
+    {
+        format = (bitDepth == 16) ? AL_FORMAT_MONO16 : AL_FORMAT_MONO8;
+    }
+    else if (channels == 2)
+    {
+        format = (bitDepth == 16) ? AL_FORMAT_STEREO16 : AL_FORMAT_STEREO8;
+    }
+    else
+    {
+        std::cerr << "Unsupported channel count: " << channels << std::endl;
+        return;
+    }
+
+    // Generate a buffer and load PCM data
+    ALuint buffer;
+    alGenBuffers(1, &buffer);
+    alBufferData(buffer, format, pcmData.data(), pcmData.size(), sampleRate);
+
+    // Generate a source and attach the buffer
+    ALuint source;
+    alGenSources(1, &source);
+    alSourcei(source, AL_BUFFER, buffer);
+
+    // Play the source
+    alSourcePlay(source);
+
+    std::cout << "Playing audio..." << std::endl;
+
+    // Wait until the audio finishes playing
+    ALint state;
+    do
+    {
+        alGetSourcei(source, AL_SOURCE_STATE, &state);
+    } while (state == AL_PLAYING);
+
+    // Cleanup OpenAL resources
+    alDeleteSources(1, &source);
+    alDeleteBuffers(1, &buffer);
+}
+
 int main()
 {
-    std::string filePath = "assets/audio/space-ambient.mp3";
-    getMP3FileInfo(filePath);
+    // Decode MP3 to PCM
+    std::string filePath = "assets/audio/masseffect-ambient.mp3";
+    int channels, sampleRate, bitDepth;
+    std::vector<unsigned char> pcmData = decodeMP3ToPCM(filePath, channels, sampleRate, bitDepth);
+
+    if (pcmData.empty())
+    {
+        std::cerr << "Error: Failed to decode MP3 to PCM." << std::endl;
+        return -1;
+    }
+
+    // Initialize OpenAL
+    ALCcontext *context = nullptr;
+    ALCdevice *device = initializeOpenAL(context);
+    if (!device)
+    {
+        return -1;
+    }
+
+    // Play the PCM data
+    playPCMData(pcmData, sampleRate, channels, bitDepth);
+
+    // Clean up OpenAL
+    cleanupOpenAL(device, context);
+
     return 0;
 }
+
+#pragma clang diagnostic pop

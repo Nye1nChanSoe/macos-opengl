@@ -1,0 +1,22 @@
+panorama to cubemap
+-> https://jaxry.github.io/panorama-to-cubemap/
+
+nasa images
+-> https://svs.gsfc.nasa.gov/4851
+
+Cube map conventions
+    "px.png",  // Positive X
+    "nx.png",  // Negative X
+    "py.png",  // Positive Y
+    "ny.png",  // Negative Y
+    "pz.png",  // Positive Z
+    "nz.png"   // Negative Z
+
+Horizontal Cross
+ +----+----+----+----+
+ |    | PY |    |    |
+ +----+----+----+----+
+ | NX | PZ | PX | NZ |
+ +----+----+----+----+
+ |    | NY |    |    |
+ +----+----+----+----+

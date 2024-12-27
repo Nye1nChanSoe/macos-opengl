@@ -18,11 +18,13 @@ It ensures compatibility and performance on **Apple silicon** hardware.
   - [GLFW](https://www.glfw.org/) for windowing and input handling.
   - [GLM](https://github.com/g-truc/glm) for mathematics
   - [spdlog](https://github.com/gabime/spdlog) for fast C++ logging
+  - [mpg123](https://github.com/gypified/libmpg123) fast console MPEG Audio Player and decoder library
 
     ```bash
     brew install glfw
     brew install glm
     brew install spdlog
+    brew install mpg123
     ```
 
 ## **Generating build configurations**

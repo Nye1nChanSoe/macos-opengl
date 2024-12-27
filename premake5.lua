@@ -26,7 +26,7 @@ project "macos-opengl"
     -- Library directories and linking
     -- TODO: dynamic lib linking
     libdirs { "/opt/homebrew/lib" }
-    links { "GLFW", "OpenGL.framework", "fmt" }
+    links { "GLFW", "OpenGL.framework", "fmt", "OpenAL.framework", "mpg123" }
 
     -- To include /opt/homebrew/include in the system header search paths
     filter "system:macosx"

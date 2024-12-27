@@ -3,6 +3,7 @@
 #include "layers/SolarSystem.hpp"
 #include "layers/ImGuiOverlay.hpp"
 #include "layers/ExampleLayer.hpp"
+#include "layers/AudioLayer.hpp"
 #include "Time.hpp"
 #include "Logger.hpp"
 
@@ -25,14 +26,19 @@ Application::Application()
         });
 
     // TODO: make layer handling more robust
-    auto *layer1 = new SolarSystemLayer();
+    // Hint: current added audio as a layer instead of overlay
+    // Hint: Later synchronize audio with events in the Solar System layer
+    auto *layer1 = new AudioLayer();
     m_LayerStack.PushLayer(layer1);
+
+    auto *layer2 = new SolarSystemLayer();
+    m_LayerStack.PushLayer(layer2);
+
+    auto *layer3 = new ExampleLayer();
+    m_LayerStack.PushLayer(layer3);
 
     auto *overlay1 = new ImGuiOverlay();
     m_LayerStack.PushOverlay(overlay1);
-
-    auto *layer2 = new ExampleLayer();
-    m_LayerStack.PushLayer(layer2);
 }
 
 Application::~Application()

@@ -1,23 +1,11 @@
-#include "audio/Audio.hpp"
-#include "Logger.hpp"
-#include <thread>
-#include <chrono>
+#include "Application.hpp"
 
-int main()
+int main(int argc, char **argv)
 {
-    Audio audio;
-    std::string audioPath = "assets/audio/space-ambient.mp3";
+    Application *app = new Application();
+    app->Run();
 
-    if (!audio.LoadAudio(audioPath))
-    {
-        Logger::Critical("Failed to load audio: {}", audioPath);
-        return -1;
-    }
-
-    audio.Play();
-
-    // keep the program running while the audio plays
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    delete app;
 
     return 0;
 }

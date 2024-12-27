@@ -121,9 +121,19 @@ void Audio::Rewind()
     alSourceRewind(m_Source);
 }
 
+void Audio::Loop(bool enable)
+{
+    alSourcei(m_Source, AL_LOOPING, enable ? AL_TRUE : AL_FALSE);
+}
+
 bool Audio::IsPlaying() const
 {
     ALint state;
     alGetSourcei(m_Source, AL_SOURCE_STATE, &state);
     return state == AL_PLAYING;
+}
+
+std::unique_ptr<Audio> Audio::Create()
+{
+    return std::make_unique<Audio>();
 }

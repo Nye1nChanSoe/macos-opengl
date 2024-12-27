@@ -4,6 +4,7 @@
 #include <OpenAL/al.h>
 #include <OpenAL/alc.h>
 #include <string>
+#include <memory>
 
 class Audio
 {
@@ -18,8 +19,14 @@ public:
     bool Play();
     void Stop();
     void Rewind();
+    void Loop(bool enable = true);
 
     bool IsPlaying() const;
+
+    const inline ALuint &GetBuffer() const { return m_Buffer; }
+    const inline ALuint &GetSource() const { return m_Source; }
+
+    static std::unique_ptr<Audio> Create();
 
 private:
     bool InitOpenAL();

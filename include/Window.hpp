@@ -54,6 +54,7 @@ public:
     bool inline IsVSync() const { return m_WindowProperties.m_Vsync; }
     const int inline GetWidth() const { return m_WindowProperties.m_Width; }
     const int inline GetHeight() const { return m_WindowProperties.m_Height; }
+    const float GetAspectRatio() const;
 
 private:
     struct WindowProperties

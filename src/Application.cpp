@@ -26,12 +26,12 @@ Application::Application()
         });
 
     // TODO: make layer handling more robust
-    // Hint: current added audio as a layer instead of overlay
-    // Hint: Later synchronize audio with events in the Solar System layer
-    auto *layer1 = new AudioLayer();
+    auto *layer1 = new SolarSystemLayer();
     m_LayerStack.PushLayer(layer1);
 
-    auto *layer2 = new SolarSystemLayer();
+    // Hint: current added audio as a layer instead of overlay
+    // Hint: Later synchronize audio with events in the Solar System layer
+    auto *layer2 = new AudioLayer();
     m_LayerStack.PushLayer(layer2);
 
     auto *layer3 = new ExampleLayer();

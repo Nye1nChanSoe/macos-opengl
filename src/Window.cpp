@@ -19,18 +19,34 @@ Window::~Window()
 
 void Window::Initialize(const InitializeWindowProps &props)
 {
-    // initialize window's private properties
-    m_WindowProperties.m_Width = props.width;
-    m_WindowProperties.m_Height = props.height;
-    m_WindowProperties.m_Title = props.title;
-    m_WindowProperties.m_Vsync = props.vsync;
-
     glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, GLFW_ANGLE_PLATFORM_TYPE_METAL);
     if (!glfwInit())
     {
         std::cerr << "Failed to initialize GLFW!" << std::endl;
         exit(EXIT_FAILURE);
     }
+
+    // full screen mode
+    GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode *mode = glfwGetVideoMode(primaryMonitor);
+
+    if (primaryMonitor && mode)
+    {
+        Logger::Debug("Primary Monitor Width: {}", mode->width);
+        Logger::Debug("Primary Monitor Height: {}", mode->height);
+        Logger::Debug("Window Aspect Ratio: {}", static_cast<float>(m_WindowProperties.m_Width) / static_cast<float>(m_WindowProperties.m_Height));
+        m_WindowProperties.m_Width = mode->width;
+        m_WindowProperties.m_Height = mode->height;
+    }
+    else
+    {
+        m_WindowProperties.m_Width = props.width; // Fallback to default
+        m_WindowProperties.m_Height = props.height;
+    }
+
+    // initialize window's private properties
+    m_WindowProperties.m_Title = props.title;
+    m_WindowProperties.m_Vsync = props.vsync;
 
     glfwSetErrorCallback(GLFWErrorCallback);
 
@@ -166,6 +182,11 @@ void Window::SetVSync(bool sync)
 {
     glfwSwapInterval(sync);
     m_WindowProperties.m_Vsync = sync;
+}
+
+const float Window::GetAspectRatio() const
+{
+    return static_cast<float>(m_WindowProperties.m_Width) / static_cast<float>(m_WindowProperties.m_Height);
 }
 
 void Window::Shutdown()

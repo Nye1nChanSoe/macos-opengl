@@ -7,8 +7,8 @@
 class Layer
 {
 public:
-    explicit Layer(const std::string &name = "Unnamed Layer")
-        : m_DebugName(name), m_Visible(true) {}
+    explicit Layer(const std::string &name = "Unnamed Layer", bool isVisible = true)
+        : m_DebugName(name), m_Visible(isVisible) {}
 
     virtual ~Layer() = default;
 

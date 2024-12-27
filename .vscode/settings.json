@@ -73,6 +73,7 @@
     "*.ipp": "cpp",
     "__config": "cpp",
     "__availability": "cpp",
-    "condition_variable": "cpp"
+    "condition_variable": "cpp",
+    "__assertion_handler": "cpp"
   }
 }

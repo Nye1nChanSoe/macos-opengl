@@ -1,6 +1,7 @@
 #include "layers/SolarSystem.hpp"
 #include "buffers/BufferLayout.hpp"
 #include "Logger.hpp"
+#include "Application.hpp"
 
 SolarSystemLayer::SolarSystemLayer()
     : Layer("SolarSystemLayerLayer"), m_Time(0.0f), m_OrbitalSpeedScale(0.05f),
@@ -70,7 +71,8 @@ void SolarSystemLayer::OnAttach()
 
     m_Model = glm::mat4(1.0f);
     m_View = m_Camera.GetViewMatrix();
-    m_Projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 1000.0f);
+    m_Projection = glm::perspective(
+        glm::radians(60.0f), Application::Get().GetWindow().GetAspectRatio(), 0.1f, 1000.0f);
     m_LightPosition = m_CelestialBodies.at(0).position;
     m_LightColor = glm::vec3(1.0f, 1.0f, 0.8f); // Bright white-yellow light
 }

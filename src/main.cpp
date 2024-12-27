@@ -1,16 +1,23 @@
-#include <iostream>
-#include "audio/MP3Decoder.hpp"
+#include "audio/Audio.hpp"
+#include "Logger.hpp"
+#include <thread>
+#include <chrono>
 
 int main()
 {
-    MP3Decoder decoder;
-    if (decoder.Decode("assets/audio/space-ambient.mp3"))
-    {
-        const PCMData &pcmData = decoder.GetDecodedPCMData();
-        const MP3Data &mp3Data = decoder.GetMP3Data();
+    Audio audio;
+    std::string audioPath = "assets/audio/space-ambient.mp3";
 
-        std::cout << mp3Data << std::endl;
-        std::cout << pcmData << std::endl;
+    if (!audio.LoadAudio(audioPath))
+    {
+        Logger::Critical("Failed to load audio: {}", audioPath);
+        return -1;
     }
+
+    audio.Play();
+
+    // keep the program running while the audio plays
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+
     return 0;
 }

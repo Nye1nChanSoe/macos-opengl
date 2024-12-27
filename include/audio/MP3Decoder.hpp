@@ -5,25 +5,6 @@
 #include <string>
 #include <iostream>
 
-class MP3Decoder
-{
-private:
-    PCMData m_PCMData;
-    MP3Data m_MP3Data;
-
-public:
-    MP3Decoder();
-    ~MP3Decoder();
-
-    bool Decode(const std::string &filePath);
-
-    const PCMData &GetDecodedPCMData() const { return m_PCMData; }
-    const MP3Data &GetMP3Data() const { return m_MP3Data; }
-
-private:
-    bool Init();
-};
-
 struct PCMData
 {
     std::vector<unsigned char> m_Data;
@@ -33,7 +14,6 @@ struct PCMData
 
     friend std::ostream &operator<<(std::ostream &os, const PCMData &data)
     {
-        os << "PCM Data Info\n";
         os << "{\n";
         os << "  \"Channels\": " << data.m_Channels << ",\n";
         os << "  \"SampleRate\": " << data.m_SampleRate << ",\n";
@@ -54,7 +34,6 @@ struct MP3Data
 
     friend std::ostream &operator<<(std::ostream &os, const MP3Data &data)
     {
-        os << "MP3 Data Info\n";
         os << "{\n";
         os << "  \"FileName\": \"" << data.m_Filename << "\",\n";
         os << "  \"Duration(seconds)\": " << data.m_Duration << ",\n";
@@ -64,6 +43,25 @@ struct MP3Data
         os << "}";
         return os;
     }
+};
+
+class MP3Decoder
+{
+private:
+    PCMData m_PCMData;
+    MP3Data m_MP3Data;
+
+public:
+    MP3Decoder();
+    ~MP3Decoder();
+
+    bool Decode(const std::string &filePath);
+
+    const PCMData &GetDecodedPCMData() const { return m_PCMData; }
+    const MP3Data &GetMP3Data() const { return m_MP3Data; }
+
+private:
+    bool Init();
 };
 
 #endif

@@ -1,24 +1,29 @@
 # OpenAL PCM Audio Player
 
-This README describes how to decode and play PCM (Pulse Code Modulation) data using OpenAL.
+Decode mp3 to PCM and play using OpenAL.
+
+---
 
 ## PCM Data Overview
 
 PCM (Pulse Code Modulation) represents raw, uncompressed audio data:
 
-- **Sample Rate**: Number of samples per second (e.g., 44100 Hz).
-- **Channels**: Mono (1 channel) or Stereo (2 channels).
+- **Sample Rate**: Number of samples per second (e.g., 44100 Hz).  
+- **Channels**: Mono (1 channel) or Stereo (2 channels).  
 - **Sample Format**: Bit-depth of each sample (e.g., 16-bit, 32-bit).
+
+---
 
 ### PCM Data Preparation
 
 When decoding audio to PCM:
 
-1. **Buffer for PCM Data**:
-   - Use `std::vector<unsigned char>` to store PCM data.
-2. **Audio Format Information**:
-   - Number of channels (1 = mono, 2 = stereo).
-   - Sample rate (e.g., 44100 Hz).
+1. **Buffer for PCM Data**:  
+   Use `std::vector<unsigned char>` to store PCM data.
+
+2. **Audio Format Information**:  
+   - Number of channels (1 = mono, 2 = stereo).  
+   - Sample rate (e.g., 44100 Hz).  
    - Bit depth (e.g., 16-bit signed integers).
 
 ---
@@ -29,27 +34,37 @@ When decoding audio to PCM:
 
 - Create a context and open a device.
 
+---
+
 ### 2. Generate Buffers and Sources
 
-- Buffers store the audio data.
-- Sources play the audio.
+- **Buffers**: Store the audio data.  
+- **Sources**: Play the audio.
+
+---
 
 ### 3. Load PCM Data into a Buffer
 
-- Use `alBufferData()` to transfer PCM data into an OpenAL buffer.
+Use `alBufferData()` to transfer PCM data into an OpenAL buffer.
+
+---
 
 ### 4. Play the Sound
 
-- Attach the buffer to the source and call `alSourcePlay()`.
+Attach the buffer to the source and call `alSourcePlay()`.
 
 ---
 
 ## Core Methods in OpenAL
 
+---
+
 ### AL and ALC Functions
 
-- **AL**: Core OpenAL functions for managing buffers, sources, and playback.
-- **ALC**: OpenAL context functions for managing devices and contexts.
+- **al**: Core OpenAL functions for managing buffers, sources, and playback.  
+- **alc**: OpenAL context functions for managing devices and contexts.
+
+---
 
 ### Initialization and Cleanup
 
@@ -63,6 +78,8 @@ alcDestroyContext(context);
 alcCloseDevice(device);
 ```
 
+---
+
 ### Buffer Management
 
 ```cpp
@@ -71,6 +88,8 @@ alGenBuffers(1, &buffer);
 alBufferData(buffer, AL_FORMAT_MONO16, pcmData, dataSize, sampleRate);
 alDeleteBuffers(1, &buffer);
 ```
+
+---
 
 ### Source Management
 
@@ -84,6 +103,8 @@ alSourcePlay(source);
 // Cleanup
 alDeleteSources(1, &source);
 ```
+
+---
 
 ### Playback Control
 
@@ -99,5 +120,5 @@ if (state == AL_PLAYING) {
 
 ## References
 
-- OpenAL Documentation: https://www.openal.org/documentation/
-- PCM Audio: https://en.wikipedia.org/wiki/Pulse-code_modulation
+- [OpenAL Documentation](https://www.openal.org/documentation/)  
+- [PCM Audio](https://en.wikipedia.org/wiki/Pulse-code_modulation)

@@ -128,12 +128,12 @@ void SolarSystemLayer::OnAttach()
 
     // Skybox cubemap
     std::vector<std::string> cubemapFaces = {
-        "assets/textures/nasa_starmap_cubemap/px.png", // Positive X
-        "assets/textures/nasa_starmap_cubemap/nx.png", // Negative X
-        "assets/textures/nasa_starmap_cubemap/py.png", // Positive Y
-        "assets/textures/nasa_starmap_cubemap/ny.png", // Negative Y
-        "assets/textures/nasa_starmap_cubemap/pz.png", // Positive Z
-        "assets/textures/nasa_starmap_cubemap/nz.png"  // Negative Z
+        "assets/cubemaps/faces/starmap_4k/px.png", // Positive X
+        "assets/cubemaps/faces/starmap_4k/nx.png", // Negative X
+        "assets/cubemaps/faces/starmap_4k/py.png", // Positive Y
+        "assets/cubemaps/faces/starmap_4k/ny.png", // Negative Y
+        "assets/cubemaps/faces/starmap_4k/pz.png", // Positive Z
+        "assets/cubemaps/faces/starmap_4k/nz.png"  // Negative Z
     };
     m_CubemapTexture = std::make_unique<Texture>(cubemapFaces);
 
@@ -178,7 +178,6 @@ void SolarSystemLayer::OnEvent(Event &event)
 
 void SolarSystemLayer::OnRender()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_View = m_Camera.GetViewMatrix();
     // 3. Render the skybox
     glDepthFunc(GL_LEQUAL); // Render skybox behind everything
